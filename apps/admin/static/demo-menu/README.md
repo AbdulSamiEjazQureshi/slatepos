@@ -1,0 +1,1 @@
+Demo-only illustrative menu photography from Unsplash. Each image has a source sidecar. These are not photographs of a restaurant's actual dishes. Other tenants render only their configured product images.

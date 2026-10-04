@@ -1,0 +1,34 @@
+{
+  "name": "@roms/contracts",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./common": "./src/common.ts",
+    "./enums": "./src/enums.ts",
+    "./permissions": "./src/permissions.ts",
+    "./auth": "./src/auth.ts",
+    "./tenants": "./src/tenants.ts",
+    "./settings": "./src/settings.ts",
+    "./users": "./src/users.ts",
+    "./catalog": "./src/catalog.ts",
+    "./customers": "./src/customers.ts",
+    "./orders": "./src/orders.ts",
+    "./payments": "./src/payments.ts",
+    "./inventory": "./src/inventory.ts",
+    "./events": "./src/events.ts",
+    "./website": "./src/website.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "bun test",
+    "lint": "prettier --check ."
+  },
+  "dependencies": {
+    "zod": "^4.6.5"
+  },
+  "devDependencies": {
+    "typescript": "^6.0.3"
+  }
+}

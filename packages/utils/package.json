@@ -1,0 +1,23 @@
+{
+  "name": "@roms/utils",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./money": "./src/money.ts",
+    "./result": "./src/result.ts",
+    "./errors": "./src/errors.ts",
+    "./ids": "./src/ids.ts",
+    "./pagination": "./src/pagination.ts",
+    "./dates": "./src/dates.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "bun test",
+    "lint": "prettier --check ."
+  },
+  "devDependencies": {
+    "typescript": "^6.0.3"
+  }
+}

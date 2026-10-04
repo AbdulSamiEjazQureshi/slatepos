@@ -1,0 +1,9 @@
+node_modules
+dist
+build
+.data
+coverage
+bun.lock
+*.sql
+# A vendored browser bundle, not our source: reformatting it only churns it.
+public/scalar/scalar-standalone.min.js

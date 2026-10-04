@@ -1,0 +1,52 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+build/
+.output/
+.svelte-kit/
+.vercel/
+.netlify/
+.wrangler/
+
+# Data (local PGlite / sqlite artefacts)
+.data/
+*.sqlite
+*.sqlite-journal
+
+# Env
+.env
+.env.*
+!.env.example
+!.env.test
+
+# Logs
+*.log
+logs/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.idea/
+.vscode/*.local
+
+# Drizzle generated meta is committed; keep local studio state out
+.drizzle/
+
+# Test artifacts
+coverage/
+playwright-report/
+test-results/
+
+
+.agents/
+.claude/
+.codex/
+.aws/
+.commandcode/
+.data/
+.impeccable/
+.opencode/

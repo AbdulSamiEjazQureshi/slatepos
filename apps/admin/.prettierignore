@@ -1,0 +1,27 @@
+# Package Managers
+package-lock.json
+pnpm-lock.yaml
+yarn.lock
+bun.lock
+bun.lockb
+
+# Build output / generated
+.svelte-kit/
+generated/
+types/
+build/
+.output/
+node_modules/
+coverage/
+playwright-report/
+test-results/
+
+# Miscellaneous
+/static/
+PLAN.md
+
+# Tool state, not source. `.impeccable` and `.commandcode` are written by the
+# design tooling and reformatted on every run, so checking them only ever
+# reports drift that will come back.
+.impeccable/
+.commandcode/

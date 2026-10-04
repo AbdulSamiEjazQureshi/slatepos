@@ -1,0 +1,3 @@
+# Written by drizzle-kit, never by hand: every migration regenerates these,
+# so formatting them just creates a diff that the next generate undoes.
+drizzle/meta

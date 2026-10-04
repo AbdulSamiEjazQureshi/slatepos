@@ -1,0 +1,36 @@
+{
+  "name": "roms",
+  "private": true,
+  "version": "0.0.1",
+  "type": "module",
+  "packageManager": "bun@1.3.14",
+  "workspaces": [
+    "apps/*",
+    "apis/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "bun run --filter '*' dev",
+    "dev:admin": "bun run --filter @roms/admin dev",
+    "dev:api": "bun run --filter @roms/api dev",
+    "build": "bun run --filter '*' build",
+    "build:admin": "bun run --filter @roms/admin build",
+    "build:api": "bun run --filter @roms/api build",
+    "test": "bun run --filter '*' test",
+    "test:e2e": "bun run --filter @roms/admin test:e2e",
+    "lint": "bun run --filter '*' lint",
+    "typecheck": "bun run --filter '*' typecheck",
+    "db:generate": "bun run --filter @roms/database db:generate",
+    "db:migrate": "bun run --filter @roms/database db:migrate",
+    "db:push": "bun run --filter @roms/database db:push",
+    "db:seed": "bun run --filter @roms/database db:seed",
+    "db:studio": "bun run --filter @roms/database db:studio"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.4.2",
+    "prettier": "^3.8.3",
+    "prettier-plugin-svelte": "^4.1.0",
+    "prettier-plugin-tailwindcss": "^0.8.0",
+    "typescript": "^6.0.3"
+  }
+}

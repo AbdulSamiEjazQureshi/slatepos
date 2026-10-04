@@ -1,0 +1,129 @@
+================================================================================
+ROMS — project handoff (moving to a new computer)
+================================================================================
+Generated: 2026-10-03
+
+WHAT THIS IS
+------------
+A multi-tenant Restaurant Operating Management System (ROMS) built from PLAN.md
+as a Bun workspace monorepo:
+  apps/admin   → SvelteKit admin + POS (Svelte 5, Tailwind v4, shadcn-svelte,
+                 TanStack Query, Eden Treaty client)
+  apis/admin   → separate ElysiaJS API (Zod/Standard Schema, Drizzle, PostgreSQL)
+  packages/    → contracts (Zod schemas/DTOs), config (typed env), database
+                 (Drizzle schema/client/migrations/seed), utils (money/result/…)
+Config files: AGENTS.md and .mcp.json now live at the REPO ROOT (moved out of apps/admin).
+
+================================================================================
+SESSION HISTORY (what was built and verified)
+================================================================================
+Phase 1 — Foundation
+- Bun workspace monorepo at E:\workspace\ps with root package.json, tsconfig.base,
+  docker-compose (Postgres 17 + Redis 7), .env.example, prettier config/ignore,
+  and docs: README, ARCHITECTURE, DEVELOPMENT, DATABASE, API, SECURITY, DEPLOYMENT.
+- Shared packages: @roms/contracts, @roms/config, @roms/database, @roms/utils.
+- Drizzle schema (70 tables) + 3 generated migrations in packages/database/drizzle.
+- Dual DB driver in packages/database: PGlite (embedded Postgres, default for dev/
+  test, no Docker) and postgres.js (production). createTestDatabase() for tests.
+
+Phase 2 — Auth & tenancy
+- Auth: HS256 JWT access tokens + rotating hashed refresh tokens (Argon2id via
+  Bun.password), sessions, OTP, password reset, /auth/me.
+- Tenants, branches, users, roles, granular permissions, audit logs.
+- Tenant/branch context resolved server-side from token + x-branch-id header.
+
+Phase 3/4 — Catalog, orders, payments, inventory, purchasing, recipes
+- Categories, products, variants, modifier groups, POS search.
+- Orders: single server-authoritative pricing engine (bigint money, no floats),
+  explicit order state machine, transactional stock deduction/reversal.
+- Payments: cash/card/bank/JazzCash/Easypaisa, idempotent capture, refunds, cash
+  movements. Inventory: stock levels + append-only movements + transfers.
+- Purchasing: suppliers, purchase orders, goods receiving → stock + supplier
+  ledger (transactional), supplier payments, purchase returns.
+- Recipes: versioned recipes, ingredient costing, production runs that consume
+  ingredients and produce output stock.
+
+Additional modules built this session
+- Kitchen/KDS (tickets auto-created on order confirmation, status flow, realtime)
+- Delivery (zones, riders, dispatch, status, settlements, provider adapter)
+- Workforce (employees, departments, attendance, shifts, leaves, advances,
+  employee ledger, biometric device adapter)
+- Accounting (chart of accounts, double-entry journal, expenses, cash sessions,
+  daily closing, P&L, customer ledger)
+- Reporting (sales, top products, payment methods + extra: inventory valuation,
+  purchases, taxes, customers, kitchen)
+- Online ordering / website (tenant website settings, structured page sections,
+  public menu + guest checkout)
+- Integrations (notification providers, idempotent webhooks, tax providers
+  INTERNAL/FBR/PRA, payment providers)
+- Storage abstraction (local provider + files table)
+- Promotions (server-side evaluation)
+- AI module limited to explicit validated tools (no SQL access)
+
+Frontend
+- Eden Treaty client (typed from the API's exported App type) replacing fetch;
+  auth/branch headers injected per request; unwrap() → ApiError.
+- shadcn-svelte components (button, card, input, label, badge, table).
+- Pages: login, dashboard, POS, orders, kitchen, products, purchasing.
+
+VERIFICATION EVIDENCE (all green before this handoff)
+- `bun run typecheck` → all workspaces exit 0 (svelte-check 0 errors).
+- `bun run test` → utils 10, config 4, contracts 4, database 1, API 32
+  (unit + HTTP integration on real Postgres via PGlite: server-authoritative
+  totals, stock deduction, state machine, payment idempotency, tenant isolation,
+  permissions, purchasing→stock/ledger, production→stock, kitchen ticket,
+  daily closing, AI tools, public ordering), admin 3 → 0 fail.
+- `bun run lint` → all workspaces clean.
+- builds: @roms/api and @roms/admin both succeed.
+- Live: API boot → login/orders/payments/reports/WS events verified via scripts.
+
+CURRENT STATE / KNOWN ISSUES (open items for next session)
+1. The composed API type hit TypeScript's depth limit (TS2589) once the last four
+   modules (promotions, storage, table-ops, reports-extra) were wired in. To keep
+   a clean typecheck they are currently NOT composed in apis/admin/src/app/index.ts
+   (their source files exist and typecheck on their own). Re-wiring likely needs
+   reducing Elysia plugin depth (e.g. share one guard plugin instance / split into
+   grouped sub-apps / annotate plugin types).
+2. Web dev server returns HTTP 500 on http://localhost:5173/ (an SSR error page;
+   the login → dashboard flow was previously verified in a browser). Needs a look
+   at the SvelteKit dev output when the app is run interactively.
+3. /api/openapi serves the Scalar HTML page, but the Scalar UI loads its JS bundle
+   from https://cdn.jsdelivr.net/npm/@scalar/api-reference@latest . If that CDN is
+   blocked on the new machine the docs page appears blank. Fix: self-host the
+   Scalar bundle and set `scalar: { cdn: '/scalar/scalar-standalone.min.js' }`
+   (serve via @elysia/static), or switch provider.
+4. Redis/OTel/PWA-offline/i18n are intentionally not implemented (memory cache is
+   used; structured Pino logging is OTel-ready).
+5. Playwright E2E is configured (apps/admin/playwright.config.ts, e2e/pos.spec.ts)
+   but browsers were not installed, so E2E has not been executed.
+
+HOW TO RUN ON THE NEW MACHINE
+   bun install
+   cp .env.example .env          # defaults to PGlite (no Docker needed)
+   bun run db:migrate
+   bun run db:seed               # demo tenant; login owner@demo.test / Password123
+   bun run dev:api               # http://localhost:3000  (docs at /api/openapi)
+   bun run dev:admin             # http://localhost:5173
+Optional real Postgres: docker compose up -d; set DATABASE_DRIVER=postgres + DATABASE_URL.
+
+================================================================================
+NEXT PROMPT (paste this on the new computer)
+================================================================================
+Read AGENTS.md and prompt.txt at the repo root. This is the ROMS monorepo
+(E:\workspace\ps equivalent on this machine). Do the following and verify each step:
+
+1. Run `bun install`, then `bun run db:migrate` and `bun run db:seed`.
+2. Start the API (`bun run dev:api`) and the web app (`bun run dev:admin`). Fix the
+   web app's HTTP 500 on http://localhost:5173/ by reading the SvelteKit dev output,
+   then verify login (owner@demo.test / Password123) → dashboard → POS → orders work.
+3. Fix /api/openapi so the Scalar docs render without relying on a CDN: download the
+   Scalar standalone bundle, serve it locally via @elysia/static, and point
+   `scalar.cdn` at it in apis/admin/src/plugins/openapi.ts.
+4. Re-wire the four unwired modules (promotions, storage, table-ops, reports-extra)
+   in apis/admin/src/app/index.ts while keeping TypeScript green. Resolve TS2589 by
+   reducing Elysia plugin nesting depth (shared guard plugin instance or grouped
+   sub-apps). Run `bun run typecheck`, `bun run test`, `bun run lint`, and both builds.
+5. Install Playwright browsers and run `bun run test:e2e` (apps/admin).
+6. Report the exact commands run and their results.
+
+================================================================================

@@ -1,0 +1,12 @@
+node_modules
+.data
+dist
+build
+.output
+generated
+.svelte-kit
+coverage
+playwright-report
+test-results
+bun.lock
+*.sql
