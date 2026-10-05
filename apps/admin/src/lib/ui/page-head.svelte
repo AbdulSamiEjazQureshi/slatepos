@@ -5,9 +5,9 @@
 	let { title, sub, actions }: { title: string; sub?: string; actions?: Snippet } = $props();
 </script>
 
-<div class="mb-6 flex flex-wrap items-end justify-between gap-3">
+<div class="workspace-page-head mb-8 flex flex-wrap items-end justify-between gap-3">
 	<div class="min-w-0">
-		<h1 class="text-ink text-[28px] font-[650] tracking-[-0.02em]">{title}</h1>
+		<h1 class="text-ink text-[30px] font-[650] tracking-[-0.02em]">{title}</h1>
 		{#if sub}<p class="text-ink-2 mt-1 text-[13px]">{sub}</p>{/if}
 	</div>
 	{#if actions}

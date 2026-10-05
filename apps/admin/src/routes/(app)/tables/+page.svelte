@@ -19,6 +19,7 @@
 	import Skeleton from '#lib/ui/skeleton.svelte';
 	import Modal from '#lib/ui/modal.svelte';
 	import Field from '#lib/ui/field.svelte';
+	import FormSection from '#lib/ui/form-section.svelte';
 	import Armchair from '@lucide/svelte/icons/armchair';
 	import Plus from '@lucide/svelte/icons/plus';
 	import Merge from '@lucide/svelte/icons/merge';
@@ -623,14 +624,14 @@
 	sub="It lands on a free spot — drag it into place after"
 	width={440}
 >
-	<div class="grid gap-4 sm:grid-cols-2">
+	<FormSection title="Table details" description="Name the table and set its seating capacity.">
 		<Field label="Name or number" for="tb-name" required>
 			<Input id="tb-name" class=" u-mono" bind:value={form.name} placeholder="T12" />
 		</Field>
 		<Field label="Seats" for="tb-cap">
 			<Input id="tb-cap" type="number" min="1" max="50" class=" u-num" bind:value={form.capacity} />
 		</Field>
-	</div>
+	</FormSection>
 
 	{#snippet footer()}
 		<Button variant="ghost" onclick={() => (addOpen = false)}>Cancel</Button>

@@ -8,6 +8,12 @@
 	import { nowDate, litKeys, isLit } from '#lib/live';
 	import { onRealtime } from '#lib/realtime';
 	import { statusStyle } from '#lib/status';
+	import { visibleGroups } from '#lib/nav-filter';
+	const serviceLinks = $derived(
+		visibleGroups($currentUser)
+			.flatMap((group) => group.items)
+			.filter((item) => ['/kitchen', '/tables', '/reports'].includes(item.href))
+	);
 	import {
 		ageInMinutes,
 		ageLevel,
@@ -247,7 +253,7 @@
 </PageHead>
 
 <!-- ── the day's takings: one figure, torn from today ──────────────────── -->
-<div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+<div class="dashboard-summary grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
 	<Figure
 		label="Order sales today"
 		value={summary.isPending ? '—' : formatMoney(takings)}
@@ -273,131 +279,14 @@
 	/>
 </div>
 
-<div class="dashboard-analysis">
-	<Plate class="overflow-hidden">
-		<PlateHead title="Sales overview" sub="The last seven days, for your active branch">
-			{#snippet actions()}<div class="view-toggle trend-toggle">
-					<button
-						type="button"
-						class="w-auto px-3"
-						aria-pressed={trendMetric === 'sales'}
-						onclick={() => (trendMetric = 'sales')}>Sales</button
-					><button
-						type="button"
-						class="w-auto px-3"
-						aria-pressed={trendMetric === 'orders'}
-						onclick={() => (trendMetric = 'orders')}>Orders</button
-					>
-				</div>{/snippet}
-		</PlateHead>
-		<div class="p-5">
-			<div class="mb-3 flex items-baseline gap-3">
-				<span class="text-ink text-2xl font-semibold tracking-tight"
-					>{series.isPending
-						? '—'
-						: trendMetric === 'sales'
-							? formatMoney(weekSales)
-							: formatNumber(chartRows.reduce((sum, row) => sum + row.orders, 0))}</span
-				><span class="text-ink-3 text-xs">This week</span>
-			</div>
-			{#if series.isError}<div class="text-brick py-12 text-sm" role="alert">
-					Sales history could not be loaded. <button
-						type="button"
-						class="underline"
-						onclick={() => series.refetch()}>Try again</button
-					>
-				</div>
-			{:else if series.isPending}<div class="skel h-56"></div>
-			{:else}<svg
-					class="sales-chart"
-					viewBox="0 0 650 255"
-					role="img"
-					aria-label={`Daily ${trendMetric}, ${days[0]} to ${days[6]}`}
-				>
-					{#each [0, 0.25, 0.5, 0.75, 1] as level (level)}<line
-							x1="56"
-							x2="616"
-							y1={210 - level * 160}
-							y2={210 - level * 160}
-							stroke="var(--line)"
-							stroke-dasharray="4 5"
-						/><text
-							x="44"
-							y={214 - level * 160}
-							text-anchor="end"
-							fill="var(--ink-3)"
-							font-size="10"
-							>{trendMetric === 'orders'
-								? Math.round(chartMax * level)
-								: chartMax * level >= 1000
-									? `${((chartMax * level) / 1000).toFixed(1)}k`
-									: Math.round(chartMax * level)}</text
-						>{/each}
-					<path d={`${chartPath} L 596 210 L 56 210 Z`} fill="var(--brass)" opacity=".06" />
-					<path
-						d={chartPath}
-						fill="none"
-						stroke="var(--brass)"
-						stroke-width="2.5"
-						stroke-linecap="round"
-						stroke-linejoin="round"
-					/>
-					{#each chartPoints as point (point.date)}<circle
-							cx={point.x}
-							cy={point.y}
-							r="4"
-							fill="var(--surface)"
-							stroke="var(--brass)"
-							stroke-width="2"
-							><title
-								>{point.date}: {trendMetric === 'sales'
-									? formatMoney(point.sales)
-									: `${point.orders} orders`}</title
-							></circle
-						><text x={point.x} y="242" text-anchor="middle" fill="var(--ink-3)" font-size="11"
-							>{point.label}</text
-						>{/each}
-				</svg>
-				<p class="text-ink-3 mt-1 text-xs">
-					Confirmed order value, including tax. Refunds are reported separately.
-				</p>{/if}
-		</div>
-	</Plate>
-	<Plate class="overflow-hidden"
-		><PlateHead title="Popular dishes" sub="Your best sellers today" />
-		{#if topProducts.isPending}<Skeleton rows={5} />{:else if !topProducts.data?.length}<Empty
-				icon={ChartNoAxesColumn}
-				title="No sales recorded today"
-				body="Completed orders will build your menu’s performance picture."
-			/>{:else}<ol class="divide-line divide-y px-5">
-				{#each topProducts.data.slice(0, 5) as product, index (product.productId ?? product.name)}<li
-						class="py-4"
-					>
-						<div class="mb-2 flex items-center justify-between gap-3">
-							<div class="flex min-w-0 items-center gap-3">
-								<span class="text-ink-3 text-xs">{index + 1}</span><span
-									class="text-ink truncate text-sm font-medium">{product.name}</span
-								>
-							</div>
-							<span class="text-ink shrink-0 text-sm font-medium"
-								>{formatMoney(product.revenue)}</span
-							>
-						</div>
-						<div class="flex items-center gap-3 pl-5">
-							<div class="bg-surface-3 h-1.5 flex-1 overflow-hidden rounded-full">
-								<div
-									class="bg-brass h-full rounded-full"
-									style={`width:${topRevenue ? (num(product.revenue) / topRevenue) * 100 : 0}%`}
-								></div>
-							</div>
-							<span class="text-ink-3 text-xs">{product.quantitySold} sold</span>
-						</div>
-					</li>{/each}
-			</ol>{/if}
-	</Plate>
-</div>
+<nav class="service-shortcuts" aria-label="Service shortcuts">
+	<p>Your restaurant at a glance</p>
+	{#each serviceLinks as item (item.href)}
+		<a href={item.href}><item.icon size={16} />{item.label}<ChevronRight size={14} /></a>
+	{/each}
+</nav>
 
-<div class="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)]">
+<div class="dashboard-live grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1.65fr)_minmax(0,1fr)]">
 	<!-- ── the live board: tickets that rerank in place ────────────────── -->
 	<Plate class="overflow-hidden">
 		<PlateHead title="Open orders" sub="Open tickets across the floor, oldest at the top">
@@ -519,6 +408,132 @@
 	</Plate>
 </div>
 
+<section class="dashboard-history" aria-label="Restaurant performance">
+	<div class="dashboard-analysis">
+		<Plate class="overflow-hidden">
+			<PlateHead title="Sales overview" sub="The last seven days, for your active branch">
+				{#snippet actions()}<div class="view-toggle trend-toggle">
+						<button
+							type="button"
+							class="w-auto px-3"
+							aria-pressed={trendMetric === 'sales'}
+							onclick={() => (trendMetric = 'sales')}>Sales</button
+						><button
+							type="button"
+							class="w-auto px-3"
+							aria-pressed={trendMetric === 'orders'}
+							onclick={() => (trendMetric = 'orders')}>Orders</button
+						>
+					</div>{/snippet}
+			</PlateHead>
+			<div class="p-5">
+				<div class="mb-3 flex items-baseline gap-3">
+					<span class="text-ink text-2xl font-semibold tracking-tight"
+						>{series.isPending
+							? '—'
+							: trendMetric === 'sales'
+								? formatMoney(weekSales)
+								: formatNumber(chartRows.reduce((sum, row) => sum + row.orders, 0))}</span
+					><span class="text-ink-3 text-xs">This week</span>
+				</div>
+				{#if series.isError}<div class="text-brick py-12 text-sm" role="alert">
+						Sales history could not be loaded. <button
+							type="button"
+							class="underline"
+							onclick={() => series.refetch()}>Try again</button
+						>
+					</div>
+				{:else if series.isPending}<div class="skel h-56"></div>
+				{:else}<svg
+						class="sales-chart"
+						viewBox="0 0 650 255"
+						role="img"
+						aria-label={`Daily ${trendMetric}, ${days[0]} to ${days[6]}`}
+					>
+						{#each [0, 0.25, 0.5, 0.75, 1] as level (level)}<line
+								x1="56"
+								x2="616"
+								y1={210 - level * 160}
+								y2={210 - level * 160}
+								stroke="var(--line)"
+								stroke-dasharray="4 5"
+							/><text
+								x="44"
+								y={214 - level * 160}
+								text-anchor="end"
+								fill="var(--ink-3)"
+								font-size="10"
+								>{trendMetric === 'orders'
+									? Math.round(chartMax * level)
+									: chartMax * level >= 1000
+										? `${((chartMax * level) / 1000).toFixed(1)}k`
+										: Math.round(chartMax * level)}</text
+							>{/each}
+						<path d={`${chartPath} L 596 210 L 56 210 Z`} fill="var(--brass)" opacity=".06" />
+						<path
+							d={chartPath}
+							fill="none"
+							stroke="var(--brass)"
+							stroke-width="2.5"
+							stroke-linecap="round"
+							stroke-linejoin="round"
+						/>
+						{#each chartPoints as point (point.date)}<circle
+								cx={point.x}
+								cy={point.y}
+								r="4"
+								fill="var(--surface)"
+								stroke="var(--brass)"
+								stroke-width="2"
+								><title
+									>{point.date}: {trendMetric === 'sales'
+										? formatMoney(point.sales)
+										: `${point.orders} orders`}</title
+								></circle
+							><text x={point.x} y="242" text-anchor="middle" fill="var(--ink-3)" font-size="11"
+								>{point.label}</text
+							>{/each}
+					</svg>
+					<p class="text-ink-3 mt-1 text-xs">
+						Confirmed order value, including tax. Refunds are reported separately.
+					</p>{/if}
+			</div>
+		</Plate>
+		<Plate class="overflow-hidden"
+			><PlateHead title="Popular dishes" sub="Your best sellers today" />
+			{#if topProducts.isPending}<Skeleton rows={5} />{:else if !topProducts.data?.length}<Empty
+					icon={ChartNoAxesColumn}
+					title="No sales recorded today"
+					body="Completed orders will build your menu’s performance picture."
+				/>{:else}<ol class="divide-line divide-y px-5">
+					{#each topProducts.data.slice(0, 5) as product, index (product.productId ?? product.name)}<li
+							class="py-4"
+						>
+							<div class="mb-2 flex items-center justify-between gap-3">
+								<div class="flex min-w-0 items-center gap-3">
+									<span class="text-ink-3 text-xs">{index + 1}</span><span
+										class="text-ink truncate text-sm font-medium">{product.name}</span
+									>
+								</div>
+								<span class="text-ink shrink-0 text-sm font-medium"
+									>{formatMoney(product.revenue)}</span
+								>
+							</div>
+							<div class="flex items-center gap-3 pl-5">
+								<div class="bg-surface-3 h-1.5 flex-1 overflow-hidden rounded-full">
+									<div
+										class="bg-brass h-full rounded-full"
+										style={`width:${topRevenue ? (num(product.revenue) / topRevenue) * 100 : 0}%`}
+									></div>
+								</div>
+								<span class="text-ink-3 text-xs">{product.quantitySold} sold</span>
+							</div>
+						</li>{/each}
+				</ol>{/if}
+		</Plate>
+	</div>
+</section>
+
 <p class="text-ink-3 mt-5 text-xs">
 	Today’s figures update as orders move. {$branchId
 		? 'Showing your active branch.'
@@ -529,8 +544,8 @@
 	.dashboard-analysis {
 		display: grid;
 		grid-template-columns: minmax(0, 1fr);
-		gap: 20px;
-		margin-top: 20px;
+		gap: 24px;
+		margin-top: 0;
 	}
 	.sales-chart {
 		display: block;

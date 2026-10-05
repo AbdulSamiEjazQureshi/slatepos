@@ -1,24 +1,25 @@
 <script lang="ts">
 	import '../lib/styles/app.css';
+	import '../lib/styles/workspace.css';
 	import { QueryClientProvider } from '@tanstack/svelte-query';
 	import { Toaster } from 'svelte-sonner';
 	import favicon from '#lib/assets/favicon.svg';
 	import { queryClient } from '#lib/query';
-	import '#lib/theme';
+	import { theme } from '#lib/theme';
 
 	let { children } = $props();
 </script>
 
 <svelte:head>
 	<link rel="icon" href={favicon} />
-	<meta name="theme-color" content="#18181b" />
+	<meta name="theme-color" content="#163c36" />
 	<title>SlatePOS — Restaurant operations</title>
 </svelte:head>
 
 <QueryClientProvider client={queryClient}>
 	{@render children()}
 </QueryClientProvider>
-<Toaster position="bottom-right" closeButton />
+<Toaster theme={$theme} position="bottom-right" closeButton />
 
 <style>
 	:global([data-sonner-toast]) {

@@ -19,6 +19,7 @@
 	import Skeleton from '#lib/ui/skeleton.svelte';
 	import Modal from '#lib/ui/modal.svelte';
 	import Field from '#lib/ui/field.svelte';
+	import FormSection from '#lib/ui/form-section.svelte';
 	import BookOpen from '@lucide/svelte/icons/book-open';
 	import Search from '@lucide/svelte/icons/search';
 	import Plus from '@lucide/svelte/icons/plus';
@@ -246,7 +247,7 @@
 	{/snippet}
 </PageHead>
 
-<div class="mb-3 flex flex-wrap items-center gap-1.5">
+<div class="catalog-toolbar flex flex-wrap items-center gap-3">
 	<div class="border-line flex rounded-sm border p-0.5">
 		<button
 			type="button"
@@ -268,26 +269,6 @@
 	</div>
 
 	{#if tab === 'menu'}
-		<span class="bg-line mx-1 h-5 w-px"></span>
-		<button
-			type="button"
-			class="chip"
-			aria-pressed={categoryId === null}
-			onclick={() => (categoryId = null)}
-		>
-			Everything
-		</button>
-		{#each categories.data?.items ?? [] as category (category.id)}
-			<button
-				type="button"
-				class="chip"
-				aria-pressed={categoryId === category.id}
-				onclick={() => (categoryId = category.id)}
-			>
-				{category.name}
-			</button>
-		{/each}
-
 		<span class="ml-auto flex items-center gap-1.5">
 			{#each ['ALL', 'ACTIVE', 'DRAFT', 'ARCHIVED'] as key (key)}
 				<button
@@ -303,220 +284,244 @@
 	{/if}
 </div>
 
-{#if tab === 'categories'}
-	<Plate class="overflow-hidden">
-		<PlateHead title="Categories" sub="Organize products on your menu.">
-			{#snippet actions()}
-				<Button size="sm" variant="outline" onclick={() => (categoryOpen = true)}>
-					<Plus size={14} />
-					Add
-				</Button>
-			{/snippet}
-		</PlateHead>
-
-		{#if categories.isPending}
-			<Skeleton rows={5} />
-		{:else if (categories.data?.items ?? []).length === 0}
-			<Empty
-				icon={Layers}
-				title="No categories yet"
-				body="Categories group the menu on the POS and in reports. Add the first one and products can be filed under it."
+<div class="catalog-workbench" class:catalog-categories={tab === 'categories'}>
+	{#if tab === 'menu'}
+		<aside class="catalog-filters" aria-label="Product categories">
+			<h2>Categories</h2>
+			<button type="button" aria-pressed={categoryId === null} onclick={() => (categoryId = null)}
+				>All products</button
 			>
-				{#snippet action()}
-					<Button size="sm" onclick={() => (categoryOpen = true)}>Add a category</Button>
-				{/snippet}
-			</Empty>
-		{:else}
-			<ul class="divide-line divide-y">
-				{#each categories.data?.items ?? [] as category (category.id)}
-					{@const count = (products.data?.items ?? []).filter(
-						(product) => product.categoryId === category.id
-					).length}
-					<li class="flex items-center gap-3 px-4 py-2.5">
-						<span class="u-num text-ink-3 w-6 shrink-0 text-xs">
-							{String(category.sortOrder).padStart(2, '0')}
-						</span>
-						<div class="min-w-0 flex-1">
-							<p class="text-ink truncate text-sm font-[560]">{category.name}</p>
-							{#if category.description}
-								<p class="text-ink-3 truncate text-xs">{category.description}</p>
-							{/if}
-						</div>
-						<span class="u-num text-ink-3 shrink-0 text-xs">
-							{count} product{count === 1 ? '' : 's'}
-						</span>
-						<Stamp tone={category.isActive ? 'herb' : 'neutral'} dot={false}>
-							{category.isActive ? 'Active' : 'Retired'}
-						</Stamp>
-						{#if category.isActive}
-							<button
-								type="button"
-								class="btn btn-ghost btn-icon btn-sm text-ink-3 hover:text-brick"
-								aria-label="Retire {category.name}"
-								onclick={() => archiveCategory(category.id, category.name)}
-							>
-								<Archive size={14} />
-							</button>
-						{/if}
-					</li>
-				{/each}
-			</ul>
-		{/if}
-	</Plate>
-{:else}
-	<Plate class="overflow-hidden">
-		<PlateHead
-			title="Products"
-			sub={categoryId ? nameOfCategory(categoryId) : 'The whole menu, cheapest to dearest'}
-		>
-			{#snippet actions()}
-				<div class="field-shell w-[220px] max-w-[46vw]">
-					<Search />
-					<Input class="" bind:value={query} placeholder="Name, SKU or alias…" />
-				</div>
-			{/snippet}
-		</PlateHead>
+			{#each categories.data?.items ?? [] as category (category.id)}
+				<button
+					type="button"
+					aria-pressed={categoryId === category.id}
+					onclick={() => (categoryId = category.id)}>{category.name}</button
+				>
+			{/each}
+		</aside>
+	{/if}
+	<div class="catalog-results">
+		{#if tab === 'categories'}
+			<Plate class="overflow-hidden">
+				<PlateHead title="Categories" sub="Organize products on your menu.">
+					{#snippet actions()}
+						<Button size="sm" variant="outline" onclick={() => (categoryOpen = true)}>
+							<Plus size={14} />
+							Add
+						</Button>
+					{/snippet}
+				</PlateHead>
 
-		{#if products.isPending}
-			<Skeleton rows={8} />
-		{:else if rows.length === 0}
-			<Empty
-				icon={BookOpen}
-				title={query ? 'Nothing matches that' : 'No products here'}
-				body={query
-					? 'Try part of a name, a SKU, or one of the product’s aliases.'
-					: 'Add a product and it becomes sellable at the POS straight away.'}
-			>
-				{#snippet action()}
-					<Button size="sm" onclick={openCreate}>Add a product</Button>
-				{/snippet}
-			</Empty>
-		{:else}
-			<div class="overflow-x-auto">
-				<table class="tbl">
-					<thead>
-						<tr>
-							<th>Product</th>
-							<th class="hidden sm:table-cell">Category</th>
-							<th class="tbl-num">Price</th>
-							<th class="tbl-num">Margin</th>
-							<th class="hidden lg:table-cell">Choices</th>
-							<th>State</th>
-							<th style="width:96px"><span class="sr-only">Actions</span></th>
-						</tr>
-					</thead>
-					<tbody>
-						{#each rows as product (product.id)}
-							{@const state =
-								product.status === 'ACTIVE'
-									? 'herb'
-									: product.status === 'DRAFT'
-										? 'amber'
-										: 'neutral'}
-							{@const m = margin(product)}
-							<tr class="group">
-								<td>
-									<div class="flex items-center gap-2.5">
-										<span
-											class="border-line bg-surface-2 grid size-8 shrink-0 place-items-center overflow-hidden rounded-sm border"
-										>
-											{#if product.imageUrl}
-												<img
-													src={product.imageUrl}
-													alt=""
-													class="size-full object-cover"
-													loading="lazy"
-												/>
-											{:else}
-												<Boxes size={14} class="text-ink-3" strokeWidth={1.7} />
-											{/if}
-										</span>
-										<div class="min-w-0">
-											<p class="text-ink truncate text-sm font-[560]">{product.name}</p>
-											<p class="text-ink-3 truncate text-xs">
-												{product.sku || product.variants.length
-													? (product.sku ?? `${product.variants.length} variants`)
-													: 'No SKU'}
-												{#if product.trackInventory}
-													<span class="text-brass-ink">· stock-tracked</span>
-												{/if}
-											</p>
-										</div>
-									</div>
-								</td>
-								<td class="text-ink-2 hidden text-[12px] sm:table-cell">
-									{nameOfCategory(product.categoryId)}
-								</td>
-								<td class="tbl-num u-num text-ink text-sm font-[600]">
-									{formatMoney(product.price)}
-								</td>
-								<td class="tbl-num">
-									{#if m === null}
-										<span class="text-ink-3 text-xs">—</span>
-									{:else}
-										<span
-											class="u-num text-[12px] {m < 20
-												? 'text-brick'
-												: m < 40
-													? 'text-amber'
-													: 'text-herb'}"
-										>
-											{m}%
-										</span>
+				{#if categories.isPending}
+					<Skeleton rows={5} />
+				{:else if (categories.data?.items ?? []).length === 0}
+					<Empty
+						icon={Layers}
+						title="No categories yet"
+						body="Categories group the menu on the POS and in reports. Add the first one and products can be filed under it."
+					>
+						{#snippet action()}
+							<Button size="sm" onclick={() => (categoryOpen = true)}>Add a category</Button>
+						{/snippet}
+					</Empty>
+				{:else}
+					<ul class="divide-line divide-y">
+						{#each categories.data?.items ?? [] as category (category.id)}
+							{@const count = (products.data?.items ?? []).filter(
+								(product) => product.categoryId === category.id
+							).length}
+							<li class="flex items-center gap-3 px-4 py-2.5">
+								<span class="u-num text-ink-3 w-6 shrink-0 text-xs">
+									{String(category.sortOrder).padStart(2, '0')}
+								</span>
+								<div class="min-w-0 flex-1">
+									<p class="text-ink truncate text-sm font-[560]">{category.name}</p>
+									{#if category.description}
+										<p class="text-ink-3 truncate text-xs">{category.description}</p>
 									{/if}
-								</td>
-								<td class="hidden lg:table-cell">
-									{#if product.modifierGroups.length}
-										<span class="text-ink-2 text-xs">
-											{product.modifierGroups.length} group{product.modifierGroups.length === 1
-												? ''
-												: 's'}
-										</span>
-									{:else}
-										<span class="text-ink-3 text-xs">—</span>
-									{/if}
-								</td>
-								<td>
-									<div class="flex flex-col gap-1">
-										<Stamp tone={state} dot={false}>
-											{humanizeEnum(product.status)}
-										</Stamp>
-										{#if !product.isAvailable}
-											<span class="text-ink-3 text-[10px]">off the menu</span>
-										{/if}
-									</div>
-								</td>
-								<td>
-									<div class="flex justify-end">
-										<Dropdown.Root
-											><Dropdown.Trigger
-												class="text-muted-foreground hover:bg-muted grid size-8 place-items-center rounded-md"
-												aria-label={`Actions for ${product.name}`}
-												><Ellipsis size={16} /></Dropdown.Trigger
-											><Dropdown.Content align="end"
-												><Dropdown.Item onclick={() => openEdit(product)}
-													><Pencil />Edit product</Dropdown.Item
-												><Dropdown.Item onclick={() => toggleAvailable(product)}
-													>{product.isAvailable
-														? 'Mark unavailable'
-														: 'Mark available'}</Dropdown.Item
-												>{#if product.status !== 'ARCHIVED'}<Dropdown.Separator /><Dropdown.Item
-														variant="destructive"
-														onclick={() => archive(product)}
-														><Archive />Archive product</Dropdown.Item
-													>{/if}</Dropdown.Content
-											></Dropdown.Root
-										>
-									</div>
-								</td>
-							</tr>
+								</div>
+								<span class="u-num text-ink-3 shrink-0 text-xs">
+									{count} product{count === 1 ? '' : 's'}
+								</span>
+								<Stamp tone={category.isActive ? 'herb' : 'neutral'} dot={false}>
+									{category.isActive ? 'Active' : 'Retired'}
+								</Stamp>
+								{#if category.isActive}
+									<button
+										type="button"
+										class="btn btn-ghost btn-icon btn-sm text-ink-3 hover:text-brick"
+										aria-label="Retire {category.name}"
+										onclick={() => archiveCategory(category.id, category.name)}
+									>
+										<Archive size={14} />
+									</button>
+								{/if}
+							</li>
 						{/each}
-					</tbody>
-				</table>
-			</div>
+					</ul>
+				{/if}
+			</Plate>
+		{:else}
+			<Plate class="overflow-hidden">
+				<PlateHead
+					title="Products"
+					sub={categoryId ? nameOfCategory(categoryId) : 'The whole menu, cheapest to dearest'}
+				>
+					{#snippet actions()}
+						<div class="field-shell w-[220px] max-w-[46vw]">
+							<Search />
+							<Input
+								class="pl-9"
+								aria-label="Search products"
+								bind:value={query}
+								placeholder="Name, SKU or alias…"
+							/>
+						</div>
+					{/snippet}
+				</PlateHead>
+
+				{#if products.isPending}
+					<Skeleton rows={8} />
+				{:else if rows.length === 0}
+					<Empty
+						icon={BookOpen}
+						title={query ? 'Nothing matches that' : 'No products here'}
+						body={query
+							? 'Try part of a name, a SKU, or one of the product’s aliases.'
+							: 'Add a product and it becomes sellable at the POS straight away.'}
+					>
+						{#snippet action()}
+							<Button size="sm" onclick={openCreate}>Add a product</Button>
+						{/snippet}
+					</Empty>
+				{:else}
+					<div class="overflow-x-auto">
+						<table class="tbl">
+							<thead>
+								<tr>
+									<th>Product</th>
+									<th class="hidden sm:table-cell">Category</th>
+									<th class="tbl-num">Price</th>
+									<th class="tbl-num">Margin</th>
+									<th class="hidden lg:table-cell">Choices</th>
+									<th>State</th>
+									<th style="width:96px"><span class="sr-only">Actions</span></th>
+								</tr>
+							</thead>
+							<tbody>
+								{#each rows as product (product.id)}
+									{@const state =
+										product.status === 'ACTIVE'
+											? 'herb'
+											: product.status === 'DRAFT'
+												? 'amber'
+												: 'neutral'}
+									{@const m = margin(product)}
+									<tr class="group">
+										<td>
+											<div class="flex items-center gap-2.5">
+												<span
+													class="border-line bg-surface-2 grid size-8 shrink-0 place-items-center overflow-hidden rounded-sm border"
+												>
+													{#if product.imageUrl}
+														<img
+															src={product.imageUrl}
+															alt=""
+															class="size-full object-cover"
+															loading="lazy"
+														/>
+													{:else}
+														<Boxes size={14} class="text-ink-3" strokeWidth={1.7} />
+													{/if}
+												</span>
+												<div class="min-w-0">
+													<p class="text-ink truncate text-sm font-[560]">{product.name}</p>
+													<p class="text-ink-3 truncate text-xs">
+														{product.sku || product.variants.length
+															? (product.sku ?? `${product.variants.length} variants`)
+															: 'No SKU'}
+														{#if product.trackInventory}
+															<span class="text-brass-ink">· stock-tracked</span>
+														{/if}
+													</p>
+												</div>
+											</div>
+										</td>
+										<td class="text-ink-2 hidden text-[12px] sm:table-cell">
+											{nameOfCategory(product.categoryId)}
+										</td>
+										<td class="tbl-num u-num text-ink text-sm font-[600]">
+											{formatMoney(product.price)}
+										</td>
+										<td class="tbl-num">
+											{#if m === null}
+												<span class="text-ink-3 text-xs">—</span>
+											{:else}
+												<span
+													class="u-num text-[12px] {m < 20
+														? 'text-brick'
+														: m < 40
+															? 'text-amber'
+															: 'text-herb'}"
+												>
+													{m}%
+												</span>
+											{/if}
+										</td>
+										<td class="hidden lg:table-cell">
+											{#if product.modifierGroups.length}
+												<span class="text-ink-2 text-xs">
+													{product.modifierGroups.length} group{product.modifierGroups.length === 1
+														? ''
+														: 's'}
+												</span>
+											{:else}
+												<span class="text-ink-3 text-xs">—</span>
+											{/if}
+										</td>
+										<td>
+											<div class="flex flex-col gap-1">
+												<Stamp tone={state} dot={false}>
+													{humanizeEnum(product.status)}
+												</Stamp>
+												{#if !product.isAvailable}
+													<span class="text-ink-3 text-[10px]">off the menu</span>
+												{/if}
+											</div>
+										</td>
+										<td>
+											<div class="flex justify-end">
+												<Dropdown.Root
+													><Dropdown.Trigger
+														class="text-muted-foreground hover:bg-muted grid size-8 place-items-center rounded-md"
+														aria-label={`Actions for ${product.name}`}
+														><Ellipsis size={16} /></Dropdown.Trigger
+													><Dropdown.Content align="end"
+														><Dropdown.Item onclick={() => openEdit(product)}
+															><Pencil />Edit product</Dropdown.Item
+														><Dropdown.Item onclick={() => toggleAvailable(product)}
+															>{product.isAvailable
+																? 'Mark unavailable'
+																: 'Mark available'}</Dropdown.Item
+														>{#if product.status !== 'ARCHIVED'}<Dropdown.Separator /><Dropdown.Item
+																variant="destructive"
+																onclick={() => archive(product)}
+																><Archive />Archive product</Dropdown.Item
+															>{/if}</Dropdown.Content
+													></Dropdown.Root
+												>
+											</div>
+										</td>
+									</tr>
+								{/each}
+							</tbody>
+						</table>
+					</div>
+				{/if}
+			</Plate>
 		{/if}
-	</Plate>
-{/if}
+	</div>
+</div>
 
 <!-- ── product editor ───────────────────────────────────────────────────── -->
 <Modal
@@ -528,36 +533,12 @@
 	title={editingId ? 'Edit product' : 'New product'}
 	sub={editingId
 		? 'Changes apply to the next ticket, not ones already rung'
-		: 'It goes live the moment you save'}
+		: 'Set product details, pricing and availability.'}
 	width={620}
 >
-	<div class="grid gap-4 sm:grid-cols-2">
+	<FormSection title="Product details" description="Name, category and menu description.">
 		<Field label="Name" for="p-name" required class="sm:col-span-2">
 			<Input id="p-name" class="" bind:value={form.name} placeholder="Chicken Karahi" />
-		</Field>
-		<Field label="Price" for="p-price" required>
-			<div class="field-shell">
-				<Input
-					id="p-price"
-					class=" u-num"
-					bind:value={form.price}
-					placeholder="0.00"
-					inputmode="decimal"
-				/>
-				<span class="text-ink-3 pr-3 text-[12px]">PKR</span>
-			</div>
-		</Field>
-		<Field label="Cost" hint="What it costs you. Drives the margin." for="p-cost">
-			<div class="field-shell">
-				<Input
-					id="p-cost"
-					class=" u-num"
-					bind:value={form.costPrice}
-					placeholder="0.00"
-					inputmode="decimal"
-				/>
-				<span class="text-ink-3 pr-3 text-[12px]">PKR</span>
-			</div>
 		</Field>
 		<Field label="Category" for="p-cat">
 			<SelectField
@@ -572,21 +553,9 @@
 				]}
 			/>
 		</Field>
-		<Field label="Tax rate" hint="Percent added on top of the price." for="p-tax">
-			<div class="field-shell">
-				<Input
-					id="p-tax"
-					class=" u-num"
-					bind:value={taxPercent}
-					placeholder="0"
-					inputmode="decimal"
-				/>
-				<span class="text-ink-3 pr-3 text-[12px]">%</span>
-			</div>
-		</Field>
 		<Field
 			label="SKU"
-			hint="Optional code for the kitchen printer."
+			hint="Internal product code used by your team."
 			for="p-sku"
 			class="sm:col-span-2"
 		>
@@ -600,6 +569,46 @@
 				placeholder="What it is, for the menu and the website"
 			></Textarea>
 		</Field>
+	</FormSection>
+	<FormSection title="Pricing" description="Set the selling price, cost and tax.">
+		<Field label="Price" for="p-price" required>
+			<div class="field-shell">
+				<Input
+					id="p-price"
+					class=" u-num"
+					bind:value={form.price}
+					placeholder="0.00"
+					inputmode="decimal"
+				/>
+				<span class="text-ink-3 pr-3 text-[12px]">PKR</span>
+			</div>
+		</Field>
+		<Field label="Cost" hint="Used to calculate the product’s margin." for="p-cost">
+			<div class="field-shell">
+				<Input
+					id="p-cost"
+					class=" u-num"
+					bind:value={form.costPrice}
+					placeholder="0.00"
+					inputmode="decimal"
+				/>
+				<span class="text-ink-3 pr-3 text-[12px]">PKR</span>
+			</div>
+		</Field>
+		<Field label="Tax rate" hint="Percent added on top of the price." for="p-tax">
+			<div class="field-shell">
+				<Input
+					id="p-tax"
+					class=" u-num"
+					bind:value={taxPercent}
+					placeholder="0"
+					inputmode="decimal"
+				/>
+				<span class="text-ink-3 pr-3 text-[12px]">%</span>
+			</div>
+		</Field>
+	</FormSection>
+	<FormSection title="Availability" description="Choose how this product appears in your menu.">
 		<Field label="State" for="p-status" class="sm:col-span-2">
 			<div class="flex flex-wrap gap-1.5">
 				{#each ['DRAFT', 'ACTIVE', 'ARCHIVED'] as option (option)}
@@ -614,7 +623,7 @@
 				{/each}
 			</div>
 		</Field>
-	</div>
+	</FormSection>
 
 	<div class="perf-rule mt-4"></div>
 
@@ -670,7 +679,7 @@
 	sub="Groups the menu and the reports"
 	width={420}
 >
-	<div class="grid gap-4">
+	<div class="form-stack">
 		<Field label="Name" for="c-name" required>
 			<Input id="c-name" class="" bind:value={newCategoryName} placeholder="Grill" />
 		</Field>

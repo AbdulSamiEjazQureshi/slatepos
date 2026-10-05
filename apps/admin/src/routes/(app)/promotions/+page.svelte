@@ -14,6 +14,7 @@
 	import Skeleton from '#lib/ui/skeleton.svelte';
 	import Modal from '#lib/ui/modal.svelte';
 	import Field from '#lib/ui/field.svelte';
+	import FormSection from '#lib/ui/form-section.svelte';
 	import Figure from '#lib/ui/figure.svelte';
 	import Tag from '@lucide/svelte/icons/tag';
 	import Plus from '@lucide/svelte/icons/plus';
@@ -345,7 +346,10 @@
 		: 'It applies at the till as soon as it is live'}
 	width={640}
 >
-	<div class="grid gap-4 sm:grid-cols-2">
+	<FormSection
+		title="Promotion details"
+		description="Name the promotion, choose its discount and set a code."
+	>
 		<Field label="Name" for="pr-name" required class="sm:col-span-2">
 			<Input id="pr-name" class="" bind:value={form.name} placeholder="Weekend brunch" />
 		</Field>
@@ -402,7 +406,11 @@
 		<Field label="Code" hint="Leave blank for a promotion that always applies." for="pr-code">
 			<Input id="pr-code" class=" u-mono uppercase" bind:value={form.code} placeholder="BRUNCH10" />
 		</Field>
-
+	</FormSection>
+	<FormSection
+		title="Order limits"
+		description="Set the minimum order, maximum discount and usage limit."
+	>
 		<Field label="Minimum order" for="pr-min">
 			<div class="field-shell">
 				<Input id="pr-min" class=" u-num" bind:value={form.minOrder} inputmode="decimal" />
@@ -410,7 +418,7 @@
 			</div>
 		</Field>
 
-		<Field label="Cap" hint="The most it can ever take off one order." for="pr-cap">
+		<Field label="Maximum discount" hint="The most it can ever take off one order." for="pr-cap">
 			<div class="field-shell">
 				<Input
 					id="pr-cap"
@@ -429,14 +437,15 @@
 				<span class="text-ink-3 pr-3 text-[12px]">orders</span>
 			</div>
 		</Field>
-
-		<Field label="Starts" for="pr-start">
+	</FormSection>
+	<FormSection title="Schedule" description="Choose when the promotion starts and ends.">
+		<Field label="Start date" for="pr-start">
 			<Input id="pr-start" type="date" class="" bind:value={form.startDate} />
 		</Field>
-		<Field label="Ends" for="pr-end">
+		<Field label="End date" for="pr-end">
 			<Input id="pr-end" type="date" class="" bind:value={form.endDate} />
 		</Field>
-	</div>
+	</FormSection>
 
 	<div class="perf-rule my-4"></div>
 

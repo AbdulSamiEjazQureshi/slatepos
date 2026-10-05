@@ -13,6 +13,7 @@
 	} from '#lib/format';
 	import { orderLabel, orderTone, PAYMENT_METHOD_LABEL } from '#lib/status';
 	import PageHead from '#lib/ui/page-head.svelte';
+	import DateRange from '#lib/ui/date-range.svelte';
 	import Plate from '#lib/ui/plate.svelte';
 	import PlateHead from '#lib/ui/plate-head.svelte';
 	import Stamp from '#lib/ui/stamp.svelte';
@@ -148,11 +149,7 @@
 				</button>
 			{/each}
 		</div>
-		<div class="flex items-center gap-1.5">
-			<Input type="date" class=" h-8 w-[132px] text-[12px]" bind:value={from} />
-			<span class="text-ink-3">→</span>
-			<Input type="date" class=" h-8 w-[132px] text-[12px]" bind:value={to} />
-		</div>
+		<DateRange bind:from bind:to />
 	{/snippet}
 </PageHead>
 
@@ -253,7 +250,12 @@
 				{#snippet actions()}
 					<div class="field-shell h-8 min-w-[170px]">
 						<Search />
-						<Input class=" text-sm" bind:value={customerQuery} placeholder="Find a name…" />
+						<Input
+							aria-label="Search"
+							class=" text-sm"
+							bind:value={customerQuery}
+							placeholder="Find a name…"
+						/>
 					</div>
 				{/snippet}
 			</PlateHead>

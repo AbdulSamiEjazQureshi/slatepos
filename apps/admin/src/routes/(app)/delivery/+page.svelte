@@ -30,6 +30,7 @@
 	import Skeleton from '#lib/ui/skeleton.svelte';
 	import Modal from '#lib/ui/modal.svelte';
 	import Field from '#lib/ui/field.svelte';
+	import FormSection from '#lib/ui/form-section.svelte';
 	import Figure from '#lib/ui/figure.svelte';
 	import Bike from '@lucide/svelte/icons/bike';
 	import Plus from '@lucide/svelte/icons/plus';
@@ -735,7 +736,7 @@
 	onOpenChange={(value) => {
 		if (!value) assignFor = null;
 	}}
-	title="Who is carrying it?"
+	title="Assign a rider"
 	sub="Riders already out are shown with the load they are holding"
 	width={440}
 >
@@ -801,7 +802,7 @@
 			Every delivery ticket in the last stretch already has a run against it.
 		</p>
 	{:else}
-		<div class="grid gap-4">
+		<div class="form-stack">
 			<Field label="Ticket" for="dp-order" required>
 				<SelectField
 					id="dp-order"
@@ -822,7 +823,7 @@
 				/>
 			</Field>
 
-			<div class="grid gap-4 sm:grid-cols-2">
+			<div class="form-grid">
 				<Field label="Zone" hint="Sets the fee charged for the run." for="dp-zone">
 					<SelectField
 						id="dp-zone"
@@ -854,7 +855,7 @@
 				</Field>
 			</div>
 
-			<Field label="Drop address" for="dp-addr">
+			<Field label="Delivery address" for="dp-addr">
 				<Input
 					id="dp-addr"
 					class=""
@@ -884,13 +885,22 @@
 	sub="They can be assigned the moment they are saved"
 	width={480}
 >
-	<div class="grid gap-4 sm:grid-cols-2">
+	<FormSection title="Rider details" description="Contact information for dispatch.">
 		<Field label="Name" for="rd-name" required class="sm:col-span-2">
 			<Input id="rd-name" class="" bind:value={riderForm.name} placeholder="Bilal Ahmed" />
 		</Field>
 		<Field label="Phone" for="rd-phone">
-			<Input id="rd-phone" class=" u-num" bind:value={riderForm.phone} placeholder="0300 0000000" />
+			<Input
+				type="tel"
+				autocomplete="tel"
+				id="rd-phone"
+				class=" u-num"
+				bind:value={riderForm.phone}
+				placeholder="0300 0000000"
+			/>
 		</Field>
+	</FormSection>
+	<FormSection title="Delivery terms" description="Vehicle and commission per delivery.">
 		<Field label="Vehicle" for="rd-vehicle">
 			<Input id="rd-vehicle" class="" bind:value={riderForm.vehicle} placeholder="Bike" />
 		</Field>
@@ -905,7 +915,7 @@
 				<span class="text-ink-3 pr-3 text-[12px]">%</span>
 			</div>
 		</Field>
-	</div>
+	</FormSection>
 
 	{#snippet footer()}
 		<Button variant="ghost" onclick={() => (riderOpen = false)}>Cancel</Button>
@@ -923,10 +933,10 @@
 		if (!value) zoneOpen = false;
 	}}
 	title="New delivery zone"
-	sub="An area, what it costs, and when it is worth sending"
+	sub="Set the delivery area, branch and charges."
 	width={480}
 >
-	<div class="grid gap-4 sm:grid-cols-2">
+	<FormSection title="Delivery area" description="Name the zone and its operating branch.">
 		<Field label="Name" for="zn-name" required class="sm:col-span-2">
 			<Input id="zn-name" class="" bind:value={zoneForm.name} placeholder="DHA Phase 5" />
 		</Field>
@@ -942,6 +952,8 @@
 				]}
 			/>
 		</Field>
+	</FormSection>
+	<FormSection title="Order charges" description="Delivery fee and minimum order value.">
 		<Field label="Delivery fee" for="zn-fee">
 			<div class="field-shell">
 				<Input id="zn-fee" class=" u-num" bind:value={zoneForm.fee} inputmode="decimal" />
@@ -954,7 +966,7 @@
 				<span class="text-ink-3 pr-3 text-[12px]">PKR</span>
 			</div>
 		</Field>
-	</div>
+	</FormSection>
 
 	{#snippet footer()}
 		<Button variant="ghost" onclick={() => (zoneOpen = false)}>Cancel</Button>
@@ -979,14 +991,17 @@
 	sub="Commission on every run delivered inside the window"
 	width={460}
 >
-	<div class="grid gap-4 sm:grid-cols-2">
+	<FormSection
+		title="Settlement period"
+		description="Choose the dates included in this settlement."
+	>
 		<Field label="From" for="st-from">
 			<Input id="st-from" type="date" class="" bind:value={period.from} />
 		</Field>
 		<Field label="To" for="st-to">
 			<Input id="st-to" type="date" class="" bind:value={period.to} />
 		</Field>
-	</div>
+	</FormSection>
 
 	{#if settled}
 		<div class="perf-rule my-4"></div>

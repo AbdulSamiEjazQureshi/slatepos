@@ -16,6 +16,7 @@
 	import Skeleton from '#lib/ui/skeleton.svelte';
 	import Modal from '#lib/ui/modal.svelte';
 	import Field from '#lib/ui/field.svelte';
+	import FormSection from '#lib/ui/form-section.svelte';
 	import Figure from '#lib/ui/figure.svelte';
 	import ShieldCheck from '@lucide/svelte/icons/shield-check';
 	import Plus from '@lucide/svelte/icons/plus';
@@ -288,7 +289,12 @@
 			{#snippet actions()}
 				<div class="field-shell h-8 min-w-[190px]">
 					<Search />
-					<Input class=" text-sm" bind:value={query} placeholder="Find an account…" />
+					<Input
+						aria-label="Search"
+						class=" text-sm"
+						bind:value={query}
+						placeholder="Find an account…"
+					/>
 				</div>
 			{/snippet}
 		</PlateHead>
@@ -483,9 +489,9 @@
 	width={640}
 >
 	{#if opened}
-		<div class="grid gap-4 sm:grid-cols-2">
+		<FormSection title="Account details" description="Name and current account status.">
 			<Field label="Full name" for="u-name">
-				<Input id="u-name" class="" bind:value={userForm.fullName} />
+				<Input autocomplete="name" id="u-name" class="" bind:value={userForm.fullName} />
 			</Field>
 			<Field label="Status" for="u-status">
 				<SelectField
@@ -499,7 +505,7 @@
 					]}
 				/>
 			</Field>
-		</div>
+		</FormSection>
 
 		<p class="text-ink-3 mt-1.5 text-xs">
 			Last signed in {opened.lastLoginAt ? formatRelative(opened.lastLoginAt) : 'never'} · joined {formatRelative(
@@ -509,41 +515,46 @@
 
 		<div class="perf-rule my-4"></div>
 
-		<Field label="Roles" hint="At least one. These replace what they had." class="mb-4">
-			<div class="flex flex-wrap gap-1.5">
-				{#each roleRows as role (role.id)}
-					<button
-						type="button"
-						class="chip h-7 px-2.5 text-xs"
-						aria-pressed={userForm.roles.includes(role.name)}
-						onclick={() => (userForm.roles = toggle(userForm.roles, role.name))}
-					>
-						{#if userForm.roles.includes(role.name)}<Check size={11} />{/if}
-						{humanizeEnum(role.name)}
-					</button>
-				{/each}
-			</div>
-		</Field>
-
-		<Field
-			label="Branch access"
-			hint="None means every branch. These replace what they had."
-			class="mb-4"
+		<FormSection
+			title="Access permissions"
+			description="Choose roles and the branches this account can use."
 		>
-			<div class="flex flex-wrap gap-1.5">
-				{#each branches.data?.items ?? [] as branch (branch.id)}
-					<button
-						type="button"
-						class="chip h-7 px-2.5 text-xs"
-						aria-pressed={userForm.branchIds.includes(branch.id)}
-						onclick={() => (userForm.branchIds = toggle(userForm.branchIds, branch.id))}
-					>
-						{#if userForm.branchIds.includes(branch.id)}<Check size={11} />{/if}
-						{branch.name}
-					</button>
-				{/each}
-			</div>
-		</Field>
+			<Field label="Roles" hint="At least one. These replace what they had." class="mb-4">
+				<div class="flex flex-wrap gap-1.5">
+					{#each roleRows as role (role.id)}
+						<button
+							type="button"
+							class="chip h-7 px-2.5 text-xs"
+							aria-pressed={userForm.roles.includes(role.name)}
+							onclick={() => (userForm.roles = toggle(userForm.roles, role.name))}
+						>
+							{#if userForm.roles.includes(role.name)}<Check size={11} />{/if}
+							{humanizeEnum(role.name)}
+						</button>
+					{/each}
+				</div>
+			</Field>
+
+			<Field
+				label="Branch access"
+				hint="None means every branch. These replace what they had."
+				class="mb-4"
+			>
+				<div class="flex flex-wrap gap-1.5">
+					{#each branches.data?.items ?? [] as branch (branch.id)}
+						<button
+							type="button"
+							class="chip h-7 px-2.5 text-xs"
+							aria-pressed={userForm.branchIds.includes(branch.id)}
+							onclick={() => (userForm.branchIds = toggle(userForm.branchIds, branch.id))}
+						>
+							{#if userForm.branchIds.includes(branch.id)}<Check size={11} />{/if}
+							{branch.name}
+						</button>
+					{/each}
+				</div>
+			</Field>
+		</FormSection>
 
 		{#if opened.id === $currentUser?.id}
 			<p class="text-amber text-xs">
@@ -572,12 +583,18 @@
 	sub="They can sign in as soon as you save"
 	width={620}
 >
-	<div class="grid gap-4 sm:grid-cols-2">
+	<FormSection title="Account details" description="Name, sign-in email and initial password.">
 		<Field label="Full name" for="n-name" required>
-			<Input id="n-name" class="" bind:value={newUser.fullName} placeholder="Sana Iqbal" />
+			<Input
+				autocomplete="name"
+				id="n-name"
+				class=""
+				bind:value={newUser.fullName}
+				placeholder="Sana Iqbal"
+			/>
 		</Field>
 		<Field label="Email" for="n-email" required>
-			<Input id="n-email" type="email" class="" bind:value={newUser.email} />
+			<Input autocomplete="email" id="n-email" type="email" class="" bind:value={newUser.email} />
 		</Field>
 		<Field
 			label="Password"
@@ -586,40 +603,52 @@
 			required
 			class="sm:col-span-2"
 		>
-			<Input id="n-pass" type="password" class="" bind:value={newUser.password} />
+			<Input
+				minlength={10}
+				autocomplete="new-password"
+				id="n-pass"
+				type="password"
+				class=""
+				bind:value={newUser.password}
+			/>
 		</Field>
-	</div>
+	</FormSection>
 
-	<Field label="Roles" class="mt-4">
-		<div class="flex flex-wrap gap-1.5">
-			{#each roleRows as role (role.id)}
-				<button
-					type="button"
-					class="chip h-7 px-2.5 text-xs"
-					aria-pressed={newUser.roles.includes(role.name)}
-					onclick={() => (newUser.roles = toggle(newUser.roles, role.name))}
-				>
-					{#if newUser.roles.includes(role.name)}<Check size={11} />{/if}
-					{humanizeEnum(role.name)}
-				</button>
-			{/each}
-		</div>
-	</Field>
+	<FormSection
+		title="Access permissions"
+		description="Choose roles and the branches this account can use."
+	>
+		<Field label="Roles" class="mt-4">
+			<div class="flex flex-wrap gap-1.5">
+				{#each roleRows as role (role.id)}
+					<button
+						type="button"
+						class="chip h-7 px-2.5 text-xs"
+						aria-pressed={newUser.roles.includes(role.name)}
+						onclick={() => (newUser.roles = toggle(newUser.roles, role.name))}
+					>
+						{#if newUser.roles.includes(role.name)}<Check size={11} />{/if}
+						{humanizeEnum(role.name)}
+					</button>
+				{/each}
+			</div>
+		</Field>
 
-	<Field label="Branch access" hint="None means every branch." class="mt-4">
-		<div class="flex flex-wrap gap-1.5">
-			{#each branches.data?.items ?? [] as branch (branch.id)}
-				<button
-					type="button"
-					class="chip h-7 px-2.5 text-xs"
-					aria-pressed={newUser.branchIds.includes(branch.id)}
-					onclick={() => (newUser.branchIds = toggle(newUser.branchIds, branch.id))}
-				>
-					{branch.name}
-				</button>
-			{/each}
-		</div>
-	</Field>
+		<Field label="Branch access" hint="None means every branch." class="mt-4">
+			<div class="flex flex-wrap gap-1.5">
+				{#each branches.data?.items ?? [] as branch (branch.id)}
+					<button
+						type="button"
+						class="chip h-7 px-2.5 text-xs"
+						aria-pressed={newUser.branchIds.includes(branch.id)}
+						onclick={() => (newUser.branchIds = toggle(newUser.branchIds, branch.id))}
+					>
+						{branch.name}
+					</button>
+				{/each}
+			</div>
+		</Field>
+	</FormSection>
 
 	{#snippet footer()}
 		<Button variant="ghost" onclick={() => (userOpen = false)}>Cancel</Button>
@@ -647,7 +676,7 @@
 	sub="Name it, then tick what it may do"
 	width={680}
 >
-	<div class="grid gap-4 sm:grid-cols-2">
+	<FormSection title="Role details" description="A recognizable name and description.">
 		<Field
 			label="Name"
 			hint="Capitals and underscores — it is normalised for you."
@@ -659,7 +688,7 @@
 		<Field label="Description" for="r-desc">
 			<Input id="r-desc" class="" bind:value={newRole.description} />
 		</Field>
-	</div>
+	</FormSection>
 
 	<div class="perf-rule my-4"></div>
 

@@ -1,199 +1,171 @@
 ---
-name: SlatePOS Workspace
-description: Implemented shadcn-svelte restaurant workspace; user acceptance pending.
+name: SlatePOS Evergreen
+description: Evergreen restaurant workspace built on shadcn-svelte; user acceptance pending.
 colors:
-  background: "#ffffff"
-  foreground: "#18181b"
-  card: "#ffffff"
-  card-foreground: "#18181b"
-  popover: "#ffffff"
-  popover-foreground: "#18181b"
-  primary: "#18181b"
-  primary-foreground: "#fafafa"
-  secondary: "#f4f4f5"
-  secondary-foreground: "#27272a"
-  muted: "#f4f4f5"
-  muted-foreground: "#71717a"
-  accent: "#f4f4f5"
-  accent-foreground: "#18181b"
-  destructive: "#b91c1c"
-  border: "#e4e4e7"
-  input: "#d4d4d8"
-  ring: "#a1a1aa"
-  brass: "#c2410c"
-  brass-hi: "#ea580c"
-  brass-ink: "#c2410c"
-  brass-wash: "#fff1e8"
-  brass-line: "#fed7bd"
-  herb: "#35603f"
-  herb-wash: "#e6efe6"
-  herb-line: "#bdd2bf"
-  amber: "#8a5a12"
-  amber-wash: "#f7eeda"
-  amber-line: "#e6d3a8"
-  brick: "#9c3125"
-  brick-wash: "#f8e7e3"
-  brick-line: "#e8c2b8"
-  slate: "#33506c"
-  slate-wash: "#e6eef5"
-  slate-line: "#c1d3e2"
+  background: '#ffffff'
+  foreground: '#193b35'
+  card: '#ffffff'
+  card-foreground: '#193b35'
+  popover: '#ffffff'
+  popover-foreground: '#193b35'
+  primary: '#166b59'
+  primary-foreground: '#f8fcfb'
+  secondary: '#f0f5f3'
+  secondary-foreground: '#284a44'
+  muted: '#f0f5f3'
+  muted-foreground: '#64746f'
+  accent: '#f0f5f3'
+  accent-foreground: '#193b35'
+  destructive: '#b91c1c'
+  border: '#dfe8e4'
+  input: '#c5d3cd'
+  ring: '#25836f'
+  brass: '#166b59'
+  brass-hi: '#125745'
+  brass-ink: '#166b59'
+  brass-wash: '#e6f2ed'
+  brass-line: '#b7d9ca'
+  herb: '#35603f'
+  herb-wash: '#e6efe6'
+  herb-line: '#bdd2bf'
+  amber: '#8a5a12'
+  amber-wash: '#f7eeda'
+  amber-line: '#e6d3a8'
+  brick: '#9c3125'
+  brick-wash: '#f8e7e3'
+  brick-line: '#e8c2b8'
+  slate: '#33506c'
+  slate-wash: '#e6eef5'
+  slate-line: '#c1d3e2'
+  ground: '#f3f6f4'
+  ink-2: '#50645d'
+  ink-3: '#62746c'
+  rail: '#163c36'
+  rail-ink: '#eef7f2'
+  rail-ink-2: '#b4cdc1'
+  rail-workspace: '#21483f'
+  rail-active: '#d4ecdf'
 typography:
   headline:
-    fontFamily: "Inter, ui-sans-serif, system-ui, sans-serif"
-    fontSize: "1.75rem"
-    fontWeight: 640
-    lineHeight: "1.2"
-    letterSpacing: "-0.02em"
-  body:
-    fontFamily: "Inter, ui-sans-serif, system-ui, sans-serif"
-    fontSize: "0.875rem"
-    fontWeight: 400
-    lineHeight: "1.45"
-    letterSpacing: "normal"
-  control:
-    fontFamily: "Inter, ui-sans-serif, system-ui, sans-serif"
-    fontSize: "0.875rem"
-    fontWeight: 500
-    lineHeight: "1.25rem"
-    letterSpacing: "normal"
-  label:
-    fontFamily: "Inter, ui-sans-serif, system-ui, sans-serif"
-    fontSize: "13px"
-    fontWeight: 500
-    lineHeight: "1.45"
-    letterSpacing: "0"
-  figure:
-    fontFamily: "Inter, ui-sans-serif, system-ui, sans-serif"
-    fontSize: "clamp(24px, 2.4vw, 32px)"
+    fontFamily: 'Archivo, ui-sans-serif, system-ui, sans-serif'
+    fontSize: '28px'
     fontWeight: 600
-    lineHeight: "1.1"
-    letterSpacing: "-0.03em"
+    lineHeight: '1.2'
+    letterSpacing: '-0.02em'
+  body:
+    fontFamily: 'Inter, ui-sans-serif, system-ui, sans-serif'
+    fontSize: '0.875rem'
+    fontWeight: 400
+    lineHeight: '1.45'
+    letterSpacing: 'normal'
+  control:
+    fontFamily: 'Inter, ui-sans-serif, system-ui, sans-serif'
+    fontSize: '0.875rem'
+    fontWeight: 500
+    lineHeight: '1.25rem'
+    letterSpacing: 'normal'
+  label:
+    fontFamily: 'Inter, ui-sans-serif, system-ui, sans-serif'
+    fontSize: '13px'
+    fontWeight: 500
+    lineHeight: '1.45'
+    letterSpacing: '0'
+  figure:
+    fontFamily: 'Inter, ui-sans-serif, system-ui, sans-serif'
+    fontSize: 'clamp(24px, 2.4vw, 32px)'
+    fontWeight: 600
+    lineHeight: '1.1'
+    letterSpacing: '-0.03em'
 rounded:
-  control: "8px"
-  compatibility: "6px"
-  panel: "8px"
-  checkout: "10px"
+  control: '8px'
+  compatibility: '6px'
+  panel: '14px'
+  checkout: '16px'
 spacing:
-  "1": "4px"
-  "2": "8px"
-  "3": "12px"
-  "4": "16px"
-  "5": "20px"
-  "6": "24px"
-  "8": "32px"
-  "10": "40px"
-  "14": "56px"
-  "18": "72px"
+  '1': '4px'
+  '2': '8px'
+  '3': '12px'
+  '4': '16px'
+  '5': '20px'
+  '6': '24px'
+  '8': '32px'
+  '10': '40px'
+  '14': '56px'
+  '18': '72px'
 components:
   button-primary:
-    backgroundColor: "{colors.primary}"
-    textColor: "{colors.primary-foreground}"
-    rounded: "{rounded.control}"
-    height: "36px"
-    padding: "0 10px"
+    backgroundColor: '{colors.primary}'
+    textColor: '{colors.primary-foreground}'
+    rounded: '{rounded.control}'
+    height: '36px'
+    padding: '0 10px'
   button-outline:
-    backgroundColor: "{colors.background}"
-    textColor: "{colors.foreground}"
-    rounded: "{rounded.control}"
+    backgroundColor: '{colors.background}'
+    textColor: '{colors.foreground}'
+    rounded: '{rounded.control}'
   input:
-    textColor: "{colors.foreground}"
-    rounded: "{rounded.control}"
-    height: "36px"
-    padding: "4px 10px"
+    textColor: '{colors.foreground}'
+    rounded: '{rounded.control}'
+    height: '36px'
+    padding: '4px 10px'
   card:
-    backgroundColor: "{colors.card}"
-    textColor: "{colors.card-foreground}"
-    rounded: "{rounded.panel}"
+    backgroundColor: '{colors.card}'
+    textColor: '{colors.card-foreground}'
+    rounded: '{rounded.panel}'
 ---
-# Design System: SlatePOS Workspace
 
 ## Overview
 
-**Creative North Star: "SlatePOS Workspace"**
+SlatePOS Evergreen gives restaurant staff a calm, readable workspace with a deep evergreen navigation rail and light work surfaces. The existing shadcn-svelte and Bits UI controls remain the interaction foundation. User acceptance of this redesign is pending.
 
-SlatePOS Workspace uses the official shadcn-svelte Nova neutral components with self-hosted Inter, neutral primary actions, compact navigation, and bordered working surfaces. The menu keeps photography; drawers and menus carry real keyboard and focus behavior through Bits UI.
-
-This is an implemented, reviewable source snapshot. User acceptance is pending: the user rejected Counter and Service and explicitly requested shadcn-svelte dropdowns, sheets, and a proper design system. This document describes the resulting code, not platform completeness or production readiness.
-
-**Key Characteristics:**
-- Neutral primary actions and restrained operational color.
-- Inter typography and comparable tabular figures.
-- Official shadcn-svelte controls with Bits UI interaction.
-- Sheets for extended work and dialogs for bounded confirmation.
+**The Service First Rule.** Visual emphasis belongs to current work and primary actions. Real API data, permission checks, exact payment calculations, keyboard shortcuts, and realtime updates remain authoritative.
 
 ## Colors
 
-The canonical neutral primitives live in `apps/admin/src/lib/styles/shadcn.css`; the frontmatter records their light values. The sidecar records dark overrides. Compatibility tokens map existing feature surfaces to the same primitives.
+Teal primary actions and mint selected navigation contrast with the evergreen rail. White content surfaces sit on a cool green-gray canvas. Semantic green, amber, red and slate continue to identify states with text. Dark mode uses green-tinted surfaces and pale mint actions.
 
-### Primary
-- **Primary / Primary foreground:** near-black actions with light text; dark mode reverses their contrast. Orange is not the shared primary action.
-
-### Tertiary
-- **Operational orange:** the legacy `brass` family remains for limited POS photo quantity/add feedback and selected operational marks.
-- **Herb / Amber / Brick / Slate:** semantic status text, wash, and borders; always accompanied by a status word.
-- **Destructive:** generated controls' destructive semantics, distinct from legacy Brick status roles.
-
-### Neutral
-- **Background / Foreground:** working canvas and principal text.
-- **Card / Popover:** panels and elevated menus.
-- **Secondary / Muted / Accent:** controls, supporting bands, and hovered or selected rows.
-- **Border / Input / Ring:** surface edges, field strokes, and focus feedback.
-
-**The Neutral Actions Rule.** Shared primary controls use Primary; orange remains a local operational signal.
+Source order is `shadcn.css`, `tokens.css`, then `workspace.css`; the last file carries the Evergreen overrides.
 
 ## Typography
 
-**Body and heading font:** self-hosted Inter with UI sans fallbacks. **Identifier font:** JetBrains Mono with monospace fallbacks. The frontmatter records observed headline, body, control, label, and metric roles. Global H2 is 23px and H3 is 19px; generated inputs use 16px text below the medium breakpoint and 14px above it. Supporting rail labels and badges use 11px. Labels describe controls; they do not decorate headings.
-
-**The Comparable Numbers Rule.** Money, quantities, and time use tabular figures; identifiers and keyboard hints may use mono.
+Self-hosted Archivo carries headings and dashboard figures. Self-hosted Inter carries body text, controls, and tabular numbers. JetBrains Mono is reserved for keyboard shortcuts and identifiers. Shared page headings are 28px; menu names are 15px, reduced to 13px. Supporting copy uses the existing 12–14px scale.
 
 ## Layout
 
-Desktop navigation is 216px wide, 76px when collapsed, with a 56px topbar. Navigation becomes a 280px left Sheet below the 1024px desktop breakpoint. The main scrolling area retains a centered 1600px maximum width and 16px/24px responsive horizontal padding. The topbar holds page identity, command search, branch Select, connection state, theme control, and account Dropdown Menu; less essential controls hide at smaller widths.
+A 64px global header holds identity, command search, branch selection and account controls. A 52px horizontal section switcher separates Service, Stock, Back office and System, filtered by permissions. The contextual sidebar shows only the selected section’s pages, at 208px or 64px collapsed. It becomes an all-sections Sheet below 1024px. Content uses a fluid container up to 1600px with 32px desktop and 16px mobile gutters. Shared page headings separate the title and primary action from the working surface.
 
-POS has a fluid menu and sticky 350px checkout at 1100px with 24px gap. Menu columns progress from two to three at 1320px and four at 1680px; list mode uses horizontal cards. On smaller screens checkout opens directly in a Sheet from the viewport-aware bottom shortcut, including after resizing from desktop. The shared generated controls follow a 36px minimum; compact icon controls use 32px. Cashier interactions expand to 44px on coarse pointers; the mobile checkout Sheet also uses a 44px minimum button rule. Compact desktop controls remain smaller.
+The dashboard begins with compact figures and permission-filtered service shortcuts. Open orders and attention items lead the working area; sales history and popular dishes follow below. Figures form two columns on phones. DOM order matches reading and keyboard order.
+
+POS splits into menu and a 360px checkout from 1100px. Search spans the menu area above browsing controls. At 1200px, categories become a persistent 128px vertical column beside products; the service sidebar narrows to 176px. The menu grows from two to three columns at 1560px, and four at 1920px. Phones retain two columns, horizontally scrollable categories, and a Sheet checkout. Branch selection remains available on phones.
+
+Catalog separates view and status controls from category filters and the results table. Desktop category filters occupy a 180px column; below 768px they become a horizontal strip. The category-management view uses the full working width.
 
 ## Elevation & Depth
 
-Working panels remain flat and bordered. Dropdown, Select, and Popover use a soft two-part shadow (`0 4px 20px #00000012, 0 1px 3px #00000008`). Generated Sheet and Dialog use overlay depth and a dark scrim. Menu hover retains a shallow lift. State transitions come from the generated components and shared motion tokens; reduced motion collapses both legacy and data-slot animations. Legacy shadow tokens remain available but do not define resting-panel elevation.
-
-**The Working Plane Rule.** Borders separate working surfaces; overlays and floating menus earn depth.
+Work panels use subtle borders without shadows. Floating menus and dialogs retain their existing soft shadows. Product hover emphasizes the border; it does not move the layout.
 
 ## Shapes
 
-Generated controls use 8px corners. Compatibility fields and filter chips retain 6px corners; ordinary panels use 8px and checkout uses 10px. Photos and thumbnails use local rounded corners; avatars and photo counters are circular. The previous punched receipt geometry is disabled. Shape differences in retained feature components are migration evidence, not permission to invent a new scale.
+Work panels and menu cards use 14px corners. Checkout uses 16px corners and a mint header. Control corners remain 6–8px. Menu add controls are circular; photography meets the card edge.
 
 ## Components
 
-### Buttons
-Official generated Button owns neutral default, outline, secondary, ghost, destructive, and link variants. Shared Button maps existing feature APIs onto these variants and uses 44px for its large action. Default control padding is 10px horizontally with 14px medium text; icons are generally 16px. Focus uses Ring border and a 3px half-opacity ring. Disabled controls remove pointer interaction and use half opacity. Non-popup active buttons translate down one pixel. Destructive actions use a tinted fill and destructive text.
+Navigation retains permission filtering, collapse controls, workspace settings, and mobile Sheet behavior. Search opens the existing command palette. Account controls, branch locking, and theme switching keep their existing behavior.
 
-### Inputs / Fields
-Generated Input uses Input stroke, transparent light fill, muted placeholder, 8px corners, 10px horizontal padding, and Ring focus. Invalid state changes border and ring to Destructive. Field wrappers connect Label, help/error text, and the control's accessibility attributes. SelectField uses the actual generated Select with selectable items and disabled-item semantics, rather than a native select styled to resemble a popover.
+The metric strip uses one tinted sales segment; other segments remain quiet. Service shortcuts inherit navigation permission checks. POS uses real product photos and existing demo-only fallback photography. Checkout retains order types, customers, notes, hold/resume, tax calculation and payment flows.
 
-### Navigation and menus
-The rail uses compact icon-and-label links, neutral selected rows, a workspace Dropdown Menu, and mobile navigation Sheet. Account actions use Dropdown Menu; branch switching uses Select. Command search uses the generated Command primitives in an overlay. Keep the underlying keyboard selection, Escape behavior, focus return, and accessible names when extending these components.
+Sign-in uses a centred split surface beneath a standalone brand header: an evergreen restaurant panel on the left and a focused sign-in form on the right. On phones the story panel disappears and the form fills the available width. Workspace switching is progressively disclosed; password visibility, inline failures, administrator guidance and the development-only demo action remain available.
 
-### Cards, tabs, and badges
-Working panels and metric cards retain shared panel wrappers and tabular values. POS categories use generated Tabs with the line variant, keeping selection and keyboard behavior. Stamp wraps generated Badge: 24px height, 11px medium sentence-case text, optional 6px dot, and semantic status colors. Existing feature filters remain compatibility chips with compact rectangular corners.
+Form layouts use shared Field, FormSection, DateRange and Modal components. Long editors separate identity, pricing, contact details, compensation, access permissions, schedules or limits into titled fieldsets. Short forms remain a focused vertical sequence. Sheet and dialog headers provide the task and description; a persistent footer keeps cancel and save actions separate from scrolling fields.
 
-### Sheets and dialogs
-The shared Modal exposes explicit `presentation`. Extended forms and payment flows opt into Sheet; navigation and mobile cart also use Sheet. Bounded confirmations use Dialog. The wrapper still defaults to Dialog, so callers must select Sheet deliberately. Sheet forms default to a 520px maximum, capped to the viewport, with a scrollable body and optional footer. Confirmation Dialog caps its width to viewport minus 32px and body to 65dvh. Titles and descriptions remain present, with redundant descriptions visually hidden. Generated primitives own portals, focus containment, Escape, and focus restoration.
+Controls inside labelled fields are 44px high; textareas begin at 108px. Labels sit above controls, required indicators share the caption row, and hints and errors remain below the field. Currency and percentage suffixes sit in a dedicated attached unit area. Browser validation displays inline errors and blocks primary modal actions until native constraints and required selects are satisfied. API validation and money calculations remain server-authoritative.
 
-### Photo menu and checkout
-Menu photography, name, detail, tabular price, and add/quantity feedback stay inside bordered photo cards. Checkout exposes line thumbnails, quantity edits, totals, and the neutral payment action. Mobile checkout uses a scrolling Sheet with a sticky action footer; nested checkout loses its extra border and rounded corners. Demo fallback images remain illustrative and restricted to demo data.
+Editor grids respond to panel width rather than viewport width: two columns begin at a 480px content container; narrower editors and phones use one column. Settings places section descriptions beside their fields on desktop, then stacks them on phones. Report date ranges have visible start and end labels. Phone fields use telephone keyboards and contact fields use appropriate autocomplete.
 
 ## Do's and Don'ts
 
-### Do:
-- **Do** use generated shadcn-svelte components and existing wrappers.
-- **Do** pair every semantic theme role with its dark value.
-- **Do** preserve control labels, focus management, and keyboard operation.
-- **Do** set comparable money, quantity, and time in tabular figures.
-- **Do** retain reduced-motion behavior and explicit status words.
-
-### Don't:
-- **Don't** reintroduce Counter receipt perforations or Service orange primary buttons.
-- **Don't** replace a dropdown or sheet with a painted imitation.
-- **Don't** use color as the only status signal.
-- **Don't** interpret this visual snapshot as whole-platform production readiness.
+- Use shared semantic colors and existing shadcn-svelte primitives.
+- Keep primary actions obvious and labels in sentence case.
+- Preserve keyboard focus, touch targets, reduced motion, and all loading/error/empty states.
+- Show real server data; identify demo photography as illustrative.
+- Do not introduce invented metrics, decorative gradients, or motion that delays service.

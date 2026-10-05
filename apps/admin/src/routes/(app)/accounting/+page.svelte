@@ -6,6 +6,7 @@
 	import { authenticated, branchId } from '#lib/session';
 	import { formatDate, formatMoney, formatNumber, shiftDay, todayISO } from '#lib/format';
 	import PageHead from '#lib/ui/page-head.svelte';
+	import DateRange from '#lib/ui/date-range.svelte';
 	import Plate from '#lib/ui/plate.svelte';
 	import PlateHead from '#lib/ui/plate-head.svelte';
 	import Button from '#lib/ui/button.svelte';
@@ -14,6 +15,7 @@
 	import Skeleton from '#lib/ui/skeleton.svelte';
 	import Modal from '#lib/ui/modal.svelte';
 	import Field from '#lib/ui/field.svelte';
+	import FormSection from '#lib/ui/form-section.svelte';
 	import Figure from '#lib/ui/figure.svelte';
 	import Scale from '@lucide/svelte/icons/scale';
 	import Plus from '@lucide/svelte/icons/plus';
@@ -152,11 +154,7 @@
 
 <PageHead title="Accounting" sub="Track expenses, payments and daily closing.">
 	{#snippet actions()}
-		<div class="flex items-center gap-1.5">
-			<Input type="date" class=" h-8 w-[132px] text-[12px]" bind:value={from} />
-			<span class="text-ink-3">→</span>
-			<Input type="date" class=" h-8 w-[132px] text-[12px]" bind:value={to} />
-		</div>
+		<DateRange bind:from bind:to />
 		<Button size="sm" variant="outline" onclick={openExpense}>
 			<Plus size={14} />
 			Expense
@@ -403,7 +401,7 @@
 	sub="It posts straight to the journal"
 	width={560}
 >
-	<div class="grid gap-4 sm:grid-cols-2">
+	<FormSection title="Expense details" description="What was spent, how much and when.">
 		<Field label="Category" for="e-cat" required>
 			<Input
 				id="e-cat"
@@ -433,6 +431,8 @@
 		<Field label="Date" for="e-date">
 			<Input id="e-date" type="date" class="" bind:value={expenseForm.expenseDate} />
 		</Field>
+	</FormSection>
+	<FormSection title="Payment record" description="Record the payment source and supporting notes.">
 		<Field label="Paid from" for="e-from">
 			<div class="flex gap-1.5">
 				{#each ['CASH', 'BANK'] as option (option)}
@@ -455,7 +455,7 @@
 				placeholder="K-Electric bill for September"
 			/>
 		</Field>
-	</div>
+	</FormSection>
 
 	{#snippet footer()}
 		<Button variant="ghost" onclick={() => (expenseOpen = false)}>Cancel</Button>

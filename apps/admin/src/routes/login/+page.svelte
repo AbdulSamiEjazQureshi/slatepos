@@ -15,9 +15,6 @@
 	import Eye from '@lucide/svelte/icons/eye';
 	import EyeOff from '@lucide/svelte/icons/eye-off';
 	import CircleAlert from '@lucide/svelte/icons/circle-alert';
-	import Utensils from '@lucide/svelte/icons/utensils';
-	import CookingPot from '@lucide/svelte/icons/cooking-pot';
-	import ChartNoAxesColumn from '@lucide/svelte/icons/chart-no-axes-column';
 	let hydrated = $state(false);
 	onMount(() => {
 		hydrated = true;
@@ -25,6 +22,7 @@
 	let email = $state(dev ? 'owner@demo.test' : '');
 	let password = $state(dev ? 'Password123' : '');
 	let tenantSlug = $state('');
+	let alternateWorkspace = $state(false);
 	let showPassword = $state(false);
 	let capsLock = $state(false);
 	let submitting = $state(false);
@@ -40,7 +38,8 @@
 			await goto('/dashboard');
 		} catch (error) {
 			failure =
-				error instanceof TypeError
+				error instanceof TypeError ||
+				(error instanceof Error && /failed to fetch|network/i.test(error.message))
 					? 'We couldn’t reach your workspace. Check your connection and try again.'
 					: error instanceof Error
 						? error.message
@@ -52,265 +51,346 @@
 </script>
 
 <svelte:head><title>Sign in — SlatePOS</title></svelte:head>
-<main class="login-layout">
-	<section class="login-form-side">
-		<a href="/" class="login-brand"
-			><span class="login-mark"><BrandMark size={24} /></span><span>SlatePOS</span></a
-		>
+<div class="signin-page">
+	<header class="signin-header">
+		<a href="/" class="signin-brand"><BrandMark size={26} /><span>SlatePOS</span></a>
 		<button
 			type="button"
-			class="btn btn-ghost btn-icon theme-toggle"
+			class="btn btn-ghost btn-icon"
 			aria-label="Toggle theme"
 			onclick={toggleTheme}
 			>{#if $theme === 'dark'}<Sun size={18} />{:else}<Moon size={18} />{/if}</button
 		>
-		<div class="login-form">
-			<h1>Welcome back</h1>
-			<p class="text-ink-3 mt-3 text-base">Sign in to your restaurant workspace.</p>
-			{#if failure}<div
-					class="bg-brick-wash text-brick mt-6 flex items-start gap-3 rounded-lg p-4 text-sm"
-					role="alert"
+	</header>
+	<main class="signin-layout">
+		<section class="signin-story" aria-label="Restaurant workspace overview">
+			<div class="signin-story-copy">
+				<h2>Ready for<br />your next service.</h2>
+				<p>Your menu, orders, kitchen and team.<br />One workspace, from opening to closing.</p>
+			</div>
+			<div class="signin-photo">
+				<img src="/demo-menu/burger.jpg" alt="A burger from the illustrative demo menu" /><span
+					>Built around your restaurant.</span
 				>
-					<CircleAlert size={18} class="mt-0.5 shrink-0" /><span>{failure}</span>
-				</div>{/if}
-			<form onsubmit={submit} class="mt-8 flex flex-col gap-5">
-				<Field label="Email" for="email"
-					><Input
-						id="email"
-						class=" login-field"
-						type="email"
-						bind:value={email}
-						autocomplete="username"
-						placeholder="you@restaurant.com"
-						required
-					/></Field
-				>
-				<Field label="Password" for="password"
-					><div class="relative">
-						<Input
-							id="password"
-							class=" login-field pr-12"
-							type={showPassword ? 'text' : 'password'}
-							bind:value={password}
-							autocomplete="current-password"
-							placeholder="Enter your password"
+			</div>
+		</section>
+		<section class="signin-form-side" aria-labelledby="signin-title">
+			<div class="signin-form">
+				<h1 id="signin-title">Sign in to your workspace</h1>
+				<p class="signin-intro">Use the email and password provided by your administrator.</p>
+				{#if failure}<div class="signin-error" role="alert">
+						<CircleAlert size={18} />
+						<p>{failure}</p>
+					</div>{/if}
+				<form onsubmit={submit} class="form-stack signin-fields">
+					<Field label="Email" for="email" required
+						><Input
+							id="email"
+							type="email"
+							bind:value={email}
+							autocomplete="username"
+							placeholder="you@restaurant.com"
 							required
-							onkeydown={(event) => (capsLock = event.getModifierState('CapsLock'))}
-							onkeyup={(event) => (capsLock = event.getModifierState('CapsLock'))}
-						/><button
-							type="button"
-							class="text-ink-3 absolute top-1 right-1 grid size-10 place-items-center rounded-md"
-							aria-label={showPassword ? 'Hide password' : 'Show password'}
-							onclick={() => (showPassword = !showPassword)}
-							>{#if showPassword}<EyeOff size={18} />{:else}<Eye size={18} />{/if}</button
-						>
-					</div>
-					{#if capsLock}<p class="text-amber mt-2 text-xs">Caps Lock is on</p>{/if}</Field
-				>
-				<details>
-					<summary class="text-ink-3 cursor-pointer text-xs">Choose another workspace</summary>
-					<div class="mt-3">
-						<Field label="Workspace slug" hint="Leave empty for your default workspace."
-							><Input
-								class=""
-								bind:value={tenantSlug}
-								placeholder="acme-kitchen"
-								autocomplete="organization"
-							/></Field
-						>
-					</div>
-				</details>
-				<Button
-					type="submit"
-					size="lg"
-					disabled={!hydrated}
-					loading={submitting}
-					class="mt-1 w-full"
-					>{submitting ? 'Signing in…' : 'Sign in'}{#if !submitting}<ArrowRight
-							size={17}
-						/>{/if}</Button
-				>
-			</form>
-			{#if dev}<div class="border-line bg-surface-2 mt-6 rounded-lg border p-4">
-					<p class="text-ink-2 text-xs">Exploring the workspace?</p>
-					<button
-						type="button"
-						class="text-brass-ink mt-1 text-sm font-medium underline-offset-4 hover:underline"
-						onclick={() => {
-							email = 'owner@demo.test';
-							password = 'Password123';
-						}}>Use the demo credentials <span aria-hidden="true">→</span></button
+						/></Field
 					>
-				</div>{/if}
-			<p class="text-ink-3 mt-8 text-xs">Need access? Ask your workspace administrator.</p>
-		</div>
-		<p class="login-footer">ROMS · Restaurant operating management</p>
-	</section>
-	<section class="login-story" aria-label="Restaurant workspace overview">
-		<div class="story-content">
-			<h2>Good service.<br />All in one place.</h2>
-			<p>
-				From the first order to the daily close. Bring your menu, kitchen, and team into one
-				workspace.
-			</p>
-			<div class="story-photos" aria-hidden="true">
-				<img src="/demo-menu/burger.jpg" alt="" class="story-burger" /><img
-					src="/demo-menu/fries.jpg"
-					alt=""
-					class="story-fries"
-				/>
+					<Field label="Password" for="password" required>
+						<div class="signin-password">
+							<Input
+								id="password"
+								type={showPassword ? 'text' : 'password'}
+								bind:value={password}
+								autocomplete="current-password"
+								placeholder="Enter your password"
+								required
+								onkeydown={(event) => (capsLock = event.getModifierState('CapsLock'))}
+								onkeyup={(event) => (capsLock = event.getModifierState('CapsLock'))}
+							/>
+							<button
+								type="button"
+								aria-label={showPassword ? 'Hide password' : 'Show password'}
+								aria-pressed={showPassword}
+								onclick={() => (showPassword = !showPassword)}
+								>{#if showPassword}<EyeOff size={18} />{:else}<Eye size={18} />{/if}</button
+							>
+						</div>
+						{#if capsLock}<p class="text-amber mt-2 text-xs">Caps Lock is on</p>{/if}
+					</Field>
+					<div class="signin-workspace">
+						<button
+							type="button"
+							class="signin-workspace-toggle"
+							aria-expanded={alternateWorkspace}
+							aria-controls="alternate-workspace"
+							onclick={() => (alternateWorkspace = !alternateWorkspace)}
+							>Choose another workspace<span>{alternateWorkspace ? 'Hide' : 'Change'}</span></button
+						>
+						{#if alternateWorkspace}<div id="alternate-workspace" class="mt-4">
+								<Field label="Workspace" hint="Leave blank to use your default workspace." optional
+									><Input
+										bind:value={tenantSlug}
+										placeholder="restaurant-name"
+										autocomplete="organization"
+									/></Field
+								>
+							</div>{/if}
+					</div>
+					<Button
+						type="submit"
+						size="lg"
+						disabled={!hydrated}
+						loading={submitting}
+						class="signin-submit"
+						>{submitting ? 'Signing in…' : 'Sign in'}{#if !submitting}<ArrowRight
+								size={17}
+							/>{/if}</Button
+					>
+				</form>
+				<p class="signin-access">Need access? <span>Ask your workspace administrator.</span></p>
+				{#if dev}<div class="signin-demo">
+						<div>
+							<p>Explore SlatePOS</p>
+							<span>Try the seeded restaurant workspace.</span>
+						</div>
+						<button
+							type="button"
+							onclick={() => {
+								email = 'owner@demo.test';
+								password = 'Password123';
+							}}>Use demo</button
+						>
+					</div>{/if}
 			</div>
-			<div class="story-capabilities">
-				<span><Utensils size={17} /> Orders & POS</span><span><CookingPot size={17} /> Kitchen</span
-				><span><ChartNoAxesColumn size={17} /> Insights</span>
-			</div>
-		</div>
-	</section>
-</main>
+		</section>
+	</main>
+	<footer class="signin-footer">ROMS · Restaurant operating management</footer>
+</div>
 
 <style>
-	.login-layout {
-		display: grid;
+	.signin-page {
 		min-height: 100dvh;
-		grid-template-columns: 1fr;
-		background: var(--surface);
-	}
-	.login-form-side {
-		position: relative;
+		background: var(--ground);
 		display: flex;
 		flex-direction: column;
-		padding: 32px;
 	}
-	.login-brand {
+	.signin-header {
+		height: 88px;
+		padding: 24px 48px;
 		display: flex;
 		align-items: center;
-		gap: 10px;
-		width: fit-content;
-		font-size: 22px;
-		font-weight: 700;
-		letter-spacing: -0.03em;
-		color: var(--ink);
+		justify-content: space-between;
 	}
-	.login-mark {
+	.signin-brand {
+		display: flex;
+		gap: 12px;
+		align-items: center;
+		font-family: 'Archivo', sans-serif;
+		font-size: 22px;
+		font-weight: 600;
+	}
+	.signin-layout {
+		width: min(1200px, calc(100% - 96px));
+		margin: auto;
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		background: var(--surface);
+		border-radius: 20px;
+		overflow: hidden;
+	}
+	.signin-story {
+		background: #163c36;
+		padding: 48px;
+		display: flex;
+		flex-direction: column;
+		gap: 32px;
+	}
+	.signin-story h2 {
+		color: #edf5f0;
+		font-size: clamp(36px, 3.5vw, 48px);
+		line-height: 1.12;
+	}
+	.signin-story p {
+		color: #bed4c8;
+		font-size: 15px;
+		line-height: 1.8;
+		margin-top: 20px;
+	}
+	.signin-photo {
+		position: relative;
+		flex: 1;
+		min-height: 280px;
+		border-radius: 12px;
+		overflow: hidden;
+	}
+	.signin-photo img {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		position: absolute;
+		inset: 0;
+	}
+	.signin-photo span {
+		position: absolute;
+		bottom: 16px;
+		left: 16px;
+		right: 16px;
+		padding: 12px 16px;
+		background: #163c36;
+		color: #edf5f0;
+		font-size: 13px;
+		border-radius: 8px;
+	}
+	.signin-form-side {
+		padding: 48px;
+		display: flex;
+		align-items: center;
+	}
+	.signin-form {
+		width: 100%;
+		max-width: 400px;
+		margin: auto;
+	}
+	.signin-form h1 {
+		font-size: 28px;
+		line-height: 1.25;
+		max-width: 18ch;
+	}
+	.signin-intro {
+		color: var(--ink-3);
+		font-size: 14px;
+		line-height: 1.7;
+		margin-top: 12px;
+	}
+	.signin-fields {
+		margin-top: 32px;
+		gap: 24px;
+	}
+	.signin-password {
+		position: relative;
+	}
+	.signin-password :global(input) {
+		padding-right: 48px;
+	}
+	.signin-password button {
+		position: absolute;
+		right: 2px;
+		top: 2px;
 		display: grid;
 		place-items: center;
 		width: 40px;
 		height: 40px;
-		background: var(--brass-wash);
-		border-radius: 12px;
-	}
-	.theme-toggle {
-		position: absolute;
-		top: 32px;
-		right: 32px;
-	}
-	.login-form {
-		width: 100%;
-		max-width: 380px;
-		margin: auto;
-		padding-block: 64px;
-	}
-	.login-form h1 {
-		font-size: 32px;
-		letter-spacing: -0.03em;
-	}
-	:global(.login-field) {
-		height: 48px;
-		font-size: 14px;
-	}
-	.login-footer {
+		border-radius: 6px;
 		color: var(--ink-3);
-		font-size: 11px;
+		cursor: pointer;
 	}
-	.login-story {
-		display: none;
-		background: var(--brass-wash);
-		margin: 20px;
-		border-radius: 20px;
-		padding: 48px;
+	.signin-error {
+		display: flex;
+		gap: 12px;
+		align-items: flex-start;
+		background: var(--brick-wash);
+		color: var(--brick);
+		border-radius: 8px;
+		padding: 16px;
+		margin-top: 24px;
+		font-size: 13px;
 	}
-	.story-content {
+	.signin-error :global(svg) {
+		flex-shrink: 0;
+	}
+	.signin-workspace-toggle {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 12px;
 		width: 100%;
-		max-width: 520px;
-		margin: auto;
-	}
-	.story-content h2 {
-		font-size: clamp(36px, 4vw, 56px);
-		line-height: 1.12;
-		letter-spacing: -0.035em;
-	}
-	.story-content > p {
-		color: var(--ink-2);
-		font-size: 16px;
-		line-height: 1.7;
-		margin-top: 20px;
-		max-width: 36ch;
-	}
-	.story-photos {
-		position: relative;
-		height: 320px;
-		margin-top: 40px;
-	}
-	.story-photos img {
-		position: absolute;
-		object-fit: cover;
-		border: 8px solid var(--surface);
-		border-radius: 18px;
-		box-shadow: var(--shadow-3);
-	}
-	.story-burger {
-		top: 0;
-		left: 0;
-		width: 60%;
-		height: 270px;
-		transform: rotate(-6deg);
-	}
-	.story-fries {
-		bottom: 0;
-		right: 0;
-		width: 49%;
-		height: 210px;
-		transform: rotate(7deg);
-	}
-	.story-capabilities {
-		display: flex;
-		flex-wrap: wrap;
-		align-items: center;
-		gap: 20px;
-		margin-top: 36px;
-		color: var(--ink-2);
-	}
-	.story-capabilities span {
-		display: flex;
-		align-items: center;
-		gap: 8px;
 		font-size: 12px;
+		color: var(--ink-3);
+		cursor: pointer;
+		min-height: 32px;
 	}
-	@media (min-width: 1024px) {
-		.login-layout {
-			grid-template-columns: 1fr 1fr;
+	.signin-workspace-toggle span {
+		color: var(--brass-ink);
+		font-weight: 500;
+	}
+	:global(.signin-submit) {
+		width: 100%;
+		min-height: 48px;
+	}
+	.signin-access {
+		color: var(--ink-3);
+		font-size: 12px;
+		line-height: 1.6;
+		margin-top: 24px;
+	}
+	.signin-access span {
+		display: block;
+	}
+	.signin-demo {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 16px;
+		padding-top: 24px;
+		margin-top: 24px;
+		border-top: 1px solid var(--line);
+	}
+	.signin-demo p {
+		font-size: 13px;
+		font-weight: 500;
+	}
+	.signin-demo span {
+		display: block;
+		font-size: 12px;
+		color: var(--ink-3);
+		margin-top: 4px;
+	}
+	.signin-demo button {
+		flex-shrink: 0;
+		padding: 10px 12px;
+		color: var(--brass-ink);
+		background: var(--brass-wash);
+		border-radius: 8px;
+		font-size: 12px;
+		font-weight: 500;
+		cursor: pointer;
+	}
+	.signin-footer {
+		padding: 24px;
+		text-align: center;
+		font-size: 11px;
+		color: var(--ink-3);
+	}
+	@media (max-width: 1023px) {
+		.signin-layout {
+			width: min(600px, calc(100% - 48px));
+			grid-template-columns: 1fr;
 		}
-		.login-story {
-			display: flex;
+		.signin-story {
+			display: none;
 		}
-		.login-form-side {
+		.signin-header {
+			padding-inline: 24px;
+		}
+		.signin-form-side {
 			padding: 40px;
 		}
-		.theme-toggle {
-			top: 40px;
-			right: 40px;
-		}
 	}
-	@media (max-width: 480px) {
-		.login-form-side {
-			padding: 24px;
+	@media (max-width: 479px) {
+		.signin-header {
+			height: 72px;
 		}
-		.login-form {
-			padding-block: 48px;
+		.signin-layout {
+			width: 100%;
+			border-radius: 0;
+			background: transparent;
 		}
-		.theme-toggle {
-			top: 24px;
-			right: 24px;
+		.signin-form-side {
+			padding: 32px 24px;
+		}
+		.signin-form h1 {
+			font-size: 26px;
+		}
+		.signin-demo {
+			gap: 12px;
 		}
 	}
 </style>

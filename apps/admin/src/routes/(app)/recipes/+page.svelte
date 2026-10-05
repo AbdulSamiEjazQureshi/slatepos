@@ -22,6 +22,7 @@
 	import Skeleton from '#lib/ui/skeleton.svelte';
 	import Modal from '#lib/ui/modal.svelte';
 	import Field from '#lib/ui/field.svelte';
+	import FormSection from '#lib/ui/form-section.svelte';
 	import Figure from '#lib/ui/figure.svelte';
 	import FlaskConical from '@lucide/svelte/icons/flask-conical';
 	import Plus from '@lucide/svelte/icons/plus';
@@ -694,7 +695,7 @@
 	sub="Ingredients leave stock and the finished product enters it, in one movement"
 	width={460}
 >
-	<div class="grid gap-4 sm:grid-cols-2">
+	<div class="form-grid">
 		<Field
 			label="Batches"
 			hint="A batch is one run of the recipe as written."
@@ -744,8 +745,10 @@
 	sub="Saved as a draft — nothing moves in stock until it is produced"
 	width={680}
 >
-	<div class="grid gap-4 sm:grid-cols-2">
-		<Field label="Output product" hint="What this recipe makes." for="rc-output" required>
+	<FormSection
+		title="Recipe details"
+		description="Choose the finished product and give the recipe a name."
+		><Field label="Output product" hint="What this recipe makes." for="rc-output" required>
 			<SelectField
 				id="rc-output"
 				class=""
@@ -756,26 +759,27 @@
 					...allProducts.map((product) => [{ value: product.id, label: `${product.name}` }]).flat()
 				]}
 			/>
-		</Field>
-
-		<Field label="Sheet name" for="rc-name" required>
+		</Field><Field label="Sheet name" for="rc-name" required>
 			<Input id="rc-name" class="" bind:value={form.name} placeholder="Lamb yakhni — house" />
-		</Field>
-
-		<Field label="Yield" hint="How much one batch makes." for="rc-yield" required>
+		</Field></FormSection
+	>
+	<FormSection title="Batch output" description="Set the yield and wastage for one production run."
+		><Field label="Yield" hint="How much one batch makes." for="rc-yield" required>
 			<div class="flex gap-2">
 				<Input id="rc-yield" class=" u-num" bind:value={form.yieldQuantity} inputmode="decimal" />
 				<Input class="" bind:value={form.yieldUnit} placeholder="portion" aria-label="Yield unit" />
 			</div>
-		</Field>
-
-		<Field label="Default wastage" hint="Applied to each ingredient as it is added." for="rc-waste">
+		</Field><Field
+			label="Default wastage"
+			hint="Applied to each ingredient as it is added."
+			for="rc-waste"
+		>
 			<div class="field-shell">
 				<Input id="rc-waste" class=" u-num" bind:value={form.percent} inputmode="decimal" />
 				<span class="text-ink-3 pr-3 text-[12px]">%</span>
 			</div>
-		</Field>
-	</div>
+		</Field></FormSection
+	>
 
 	<Field label="Notes" for="rc-notes" class="mt-4">
 		<Input

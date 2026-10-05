@@ -13,6 +13,7 @@
 	import PlateHead from '#lib/ui/plate-head.svelte';
 	import Button from '#lib/ui/button.svelte';
 	import Field from '#lib/ui/field.svelte';
+	import FormSection from '#lib/ui/form-section.svelte';
 	import Stamp from '#lib/ui/stamp.svelte';
 	import Empty from '#lib/ui/empty.svelte';
 	import Skeleton from '#lib/ui/skeleton.svelte';
@@ -200,12 +201,12 @@
 		/>
 	</Plate>
 {:else}
-	<div class="grid gap-4 xl:grid-cols-[minmax(0,1.25fr)_minmax(0,1fr)]">
+	<div class="settings-workbench">
 		<div class="flex flex-col gap-4">
 			<!-- ── identity ─────────────────────────────────────────────── -->
 			<Plate>
 				<PlateHead
-					title="The business"
+					title="Business details"
 					sub={tenant.data.slug
 						? `Published at /${tenant.data.slug}`
 						: 'Name, legal entity and prefix'}
@@ -217,7 +218,7 @@
 					{/snippet}
 				</PlateHead>
 
-				<div class="grid gap-4 p-4 sm:grid-cols-2">
+				<div class="form-grid settings-fields">
 					<Field label="Trading name" for="t-name">
 						<Input id="t-name" class="" bind:value={name} placeholder="Slate Kitchen" />
 					</Field>
@@ -252,12 +253,15 @@
 
 			<!-- ── money, clock and receipt ─────────────────────────────── -->
 			<Plate>
-				<PlateHead title="Money and time" sub="What the till prints, and which clock it trusts" />
-				<div class="grid gap-4 p-4 sm:grid-cols-3">
+				<PlateHead
+					title="Regional settings and receipts"
+					sub="Currency, business timezone and receipt content."
+				/>
+				<div class="form-grid settings-fields">
 					<Field label="Currency" hint="Three-letter ISO code." for="t-currency">
 						<Input id="t-currency" class=" u-mono uppercase" maxlength={3} bind:value={currency} />
 					</Field>
-					<Field label="Timezone" hint="The business day closes on this clock." for="t-tz">
+					<Field label="Timezone" hint="Business details day closes on this clock." for="t-tz">
 						<Input id="t-tz" class="" bind:value={timezone} placeholder="Asia/Karachi" />
 					</Field>
 					<Field label="Locale" for="t-locale">
@@ -468,20 +472,34 @@
 	sub="It starts empty — stock, staff and books follow"
 	width={520}
 >
-	<div class="grid gap-4 sm:grid-cols-2">
+	<FormSection title="Branch identity" description="Name and short code used in the workspace.">
 		<Field label="Branch name" for="b-name" required>
 			<Input id="b-name" class="" bind:value={branchForm.name} placeholder="Gulberg" />
 		</Field>
 		<Field label="Code" hint="Short, uppercase, used on reports." for="b-code" required>
 			<Input id="b-code" class=" u-mono uppercase" bind:value={branchForm.code} placeholder="GLB" />
 		</Field>
+	</FormSection>
+	<FormSection
+		title="Contact information"
+		description="How customers and your team reach this branch."
+	>
 		<Field label="Phone" for="b-phone" class="sm:col-span-2">
-			<Input id="b-phone" class="" bind:value={branchForm.phone} placeholder="+92 42 111 000 000" />
+			<Input
+				type="tel"
+				autocomplete="tel"
+				id="b-phone"
+				class=""
+				bind:value={branchForm.phone}
+				placeholder="+92 42 111 000 000"
+			/>
 		</Field>
 		<Field label="Address" for="b-address" class="sm:col-span-2">
 			<Textarea id="b-address" class=" min-h-[64px] resize-y" bind:value={branchForm.address}
 			></Textarea>
 		</Field>
+	</FormSection>
+	<FormSection title="Regional settings" description="The local clock used by this branch.">
 		<Field
 			label="Timezone"
 			hint="Leave blank to inherit the workspace clock."
@@ -490,7 +508,7 @@
 		>
 			<Input id="b-tz" class="" bind:value={branchForm.timezone} placeholder="Asia/Karachi" />
 		</Field>
-	</div>
+	</FormSection>
 	<button
 		type="button"
 		class="mt-4 flex w-full items-center gap-2.5 text-left"

@@ -408,6 +408,7 @@
 			reset();
 			await queryClient.invalidateQueries({ queryKey: ['orders'] });
 			await queryClient.invalidateQueries({ queryKey: ['payments'] });
+			await queryClient.invalidateQueries({ queryKey: ['reports'] });
 		} catch (error) {
 			toast.error(
 				error instanceof Error ? error.message : 'Payment did not go through. Retry this payment.'
@@ -458,8 +459,8 @@
 </div>
 <div class="pos-workspace">
 	<!-- ── the menu ─────────────────────────────────────────────────────── -->
-	<section class="min-w-0 flex-1">
-		<div class="mb-3 flex flex-wrap items-center gap-2">
+	<section class="pos-menu min-w-0 flex-1">
+		<div class="pos-search-row mb-5 flex flex-wrap items-center gap-2">
 			<Button variant="outline" disabled={!held.length} onclick={() => (heldOpen = true)}
 				><Play size={15} /> Held tickets ({held.length})</Button
 			>
@@ -493,164 +494,173 @@
 			{/if}
 		</div>
 
-		<Tabs.Root
-			value={activeCategory ?? 'all'}
-			onValueChange={(value) => {
-				activeCategory = value === 'all' ? null : value;
-				menuPage = 1;
-			}}
-		>
-			<div class="border-border mb-5 overflow-x-auto border-b pb-1">
-				<Tabs.List variant="line" class="h-11 gap-5 p-0" aria-label="Menu categories">
-					{#each categoryTabs as tab (tab.id ?? 'all')}
-						<Tabs.Trigger value={tab.id ?? 'all'} class="px-1 text-[13px]"
-							>{tab.name}{#if tab.count !== null}<span class="text-muted-foreground ml-1 text-xs"
-									>{tab.count}</span
-								>{/if}</Tabs.Trigger
-						>
-					{/each}
-				</Tabs.List>
-			</div>
-		</Tabs.Root>
-		<div class="menu-toolbar">
-			<h2>
-				{categoryTabs.find((tab) => tab.id === activeCategory)?.name ?? 'Menu'}<span
-					class="text-ink-3 ml-2 text-sm font-normal">{filtered.length} dishes</span
-				>
-			</h2>
-			<div class="menu-tools">
-				<SelectField
-					aria-label="Sort menu"
-					class="w-[150px] text-xs"
-					bind:value={sort}
-					onValueChange={() => (menuPage = 1)}
-					items={[
-						{ value: 'menu', label: 'Menu order' },
-						{ value: 'name', label: 'Name A–Z' },
-						{ value: 'price-asc', label: 'Price: low to high' },
-						{ value: 'price-desc', label: 'Price: high to low' }
-					]}
-				/>
-				<div class="view-toggle" role="group" aria-label="Menu view">
-					<button
-						type="button"
-						aria-label="Grid view"
-						aria-pressed={view === 'grid'}
-						onclick={() => (view = 'grid')}><LayoutGrid size={16} /></button
-					><button
-						type="button"
-						aria-label="List view"
-						aria-pressed={view === 'list'}
-						onclick={() => (view = 'list')}><List size={16} /></button
+		<div class="pos-menu-body">
+			<Tabs.Root
+				class="pos-category-nav"
+				value={activeCategory ?? 'all'}
+				onValueChange={(value) => {
+					activeCategory = value === 'all' ? null : value;
+					menuPage = 1;
+				}}
+			>
+				<div class="pos-category-scroll">
+					<Tabs.List
+						variant="line"
+						class="pos-category-list h-11 gap-5 p-0"
+						aria-label="Menu categories"
 					>
+						{#each categoryTabs as tab (tab.id ?? 'all')}
+							<Tabs.Trigger value={tab.id ?? 'all'} class="px-1 text-[13px]"
+								>{tab.name}{#if tab.count !== null}<span class="text-muted-foreground ml-1 text-xs"
+										>{tab.count}</span
+									>{/if}</Tabs.Trigger
+							>
+						{/each}
+					</Tabs.List>
 				</div>
+			</Tabs.Root>
+			<div class="pos-menu-results">
+				<div class="menu-toolbar">
+					<h2>
+						{categoryTabs.find((tab) => tab.id === activeCategory)?.name ?? 'Menu'}<span
+							class="text-ink-3 ml-2 text-sm font-normal">{filtered.length} dishes</span
+						>
+					</h2>
+					<div class="menu-tools">
+						<SelectField
+							aria-label="Sort menu"
+							class="w-[150px] text-xs"
+							bind:value={sort}
+							onValueChange={() => (menuPage = 1)}
+							items={[
+								{ value: 'menu', label: 'Menu order' },
+								{ value: 'name', label: 'Name A–Z' },
+								{ value: 'price-asc', label: 'Price: low to high' },
+								{ value: 'price-desc', label: 'Price: high to low' }
+							]}
+						/>
+						<div class="view-toggle" role="group" aria-label="Menu view">
+							<button
+								type="button"
+								aria-label="Grid view"
+								aria-pressed={view === 'grid'}
+								onclick={() => (view = 'grid')}><LayoutGrid size={16} /></button
+							><button
+								type="button"
+								aria-label="List view"
+								aria-pressed={view === 'list'}
+								onclick={() => (view = 'list')}><List size={16} /></button
+							>
+						</div>
+					</div>
+				</div>
+
+				{#if catalog.isError}
+					<div class="plate p-6" role="alert">
+						<h3>Menu could not be loaded</h3>
+						<p class="text-ink-3 my-3">{catalog.error.message}</p>
+						<Button onclick={() => catalog.refetch()}>Try again</Button>
+					</div>
+				{:else if catalog.isPending}
+					<div class="menu-grid">
+						{#each { length: 9 } as _, i (i)}
+							<div class="skel h-[132px]"></div>
+						{/each}
+					</div>
+				{:else if filtered.length === 0}
+					<div class="plate">
+						<Empty
+							icon={Utensils}
+							title={query ? 'Nothing on the menu matches' : 'No dishes yet'}
+							body={query
+								? 'Try a shorter word, or clear the search to see the whole menu.'
+								: 'Add dishes in the Catalog and they appear here, priced and ready to ring up.'}
+						>
+							{#snippet action()}
+								<Button size="sm" href="/catalog">Open the catalog</Button>
+							{/snippet}
+						</Empty>
+					</div>
+				{:else}
+					<div class="menu-grid" class:is-list={view === 'list'}>
+						{#each filtered as product (product.id)}
+							{@const unavailable = !product.isAvailable || product.status !== 'ACTIVE'}
+							{@const image = photoFor(product.name, product.imageUrl)}
+							{@const quantity = cart.lines
+								.filter((line) => line.productId === product.id)
+								.reduce((total, line) => total + line.quantity, 0)}
+							<button
+								type="button"
+								class="menu-product"
+								aria-label={`${product.name} ${formatMoney(product.price)}`}
+								disabled={unavailable || locked}
+								onclick={() =>
+									product.modifierGroups.length || product.variants.length > 1
+										? openModifiers(product.id)
+										: cart.addLine(product, product.variants[0]?.id ?? null)}
+							>
+								<div class="product-photo">
+									{#if image}<img
+											src={image}
+											alt=""
+											loading="lazy"
+											onerror={(event) =>
+												((event.currentTarget as HTMLImageElement).style.visibility = 'hidden')}
+										/>{:else}<div class="text-ink-3 grid h-full place-items-center">
+											<Utensils size={30} strokeWidth={1.4} />
+										</div>{/if}
+								</div>
+								{#if quantity}<span class="product-count" aria-hidden="true">{quantity}</span>{/if}
+								<div class="product-copy">
+									<p class="product-name">{product.name}</p>
+									<p class="product-detail">
+										{unavailable
+											? 'Unavailable'
+											: product.variants.length > 1
+												? `${product.variants.length} sizes available`
+												: product.modifierGroups.length
+													? 'Customize your dish'
+													: (categories.data?.items.find(
+															(category) => category.id === product.categoryId
+														)?.name ?? 'Menu item')}
+									</p>
+									<div class="product-bottom">
+										<span class="product-price">{formatMoney(product.price)}</span><span
+											class="product-add"
+											aria-hidden="true"><Plus size={17} /></span
+										>
+									</div>
+								</div>
+							</button>
+						{/each}
+					</div>
+				{/if}
+				{#if catalog.data && catalog.data.meta.totalPages > 1}<div
+						class="mt-5 flex flex-wrap items-center justify-between gap-3"
+					>
+						<p class="text-ink-3 text-xs">
+							Page {menuPage} of {catalog.data.meta.totalPages} · {catalog.data.meta.total} dishes
+						</p>
+						<div class="flex gap-2">
+							<Button
+								variant="outline"
+								size="sm"
+								disabled={menuPage <= 1}
+								onclick={() => (menuPage -= 1)}>Previous</Button
+							><Button
+								variant="outline"
+								size="sm"
+								disabled={!catalog.data.meta.hasNext}
+								onclick={() => (menuPage += 1)}>Next</Button
+							>
+						</div>
+					</div>{/if}
+
+				{#if $currentUser?.tenantSlug === 'demo'}<p class="text-ink-3 mt-4 text-xs">
+						Demo menu photography is illustrative.
+					</p>{/if}
 			</div>
 		</div>
-
-		{#if catalog.isError}
-			<div class="plate p-6" role="alert">
-				<h3>Menu could not be loaded</h3>
-				<p class="text-ink-3 my-3">{catalog.error.message}</p>
-				<Button onclick={() => catalog.refetch()}>Try again</Button>
-			</div>
-		{:else if catalog.isPending}
-			<div class="menu-grid">
-				{#each { length: 9 } as _, i (i)}
-					<div class="skel h-[132px]"></div>
-				{/each}
-			</div>
-		{:else if filtered.length === 0}
-			<div class="plate">
-				<Empty
-					icon={Utensils}
-					title={query ? 'Nothing on the menu matches' : 'No dishes yet'}
-					body={query
-						? 'Try a shorter word, or clear the search to see the whole menu.'
-						: 'Add dishes in the Catalog and they appear here, priced and ready to ring up.'}
-				>
-					{#snippet action()}
-						<Button size="sm" href="/catalog">Open the catalog</Button>
-					{/snippet}
-				</Empty>
-			</div>
-		{:else}
-			<div class="menu-grid" class:is-list={view === 'list'}>
-				{#each filtered as product (product.id)}
-					{@const unavailable = !product.isAvailable || product.status !== 'ACTIVE'}
-					{@const image = photoFor(product.name, product.imageUrl)}
-					{@const quantity = cart.lines
-						.filter((line) => line.productId === product.id)
-						.reduce((total, line) => total + line.quantity, 0)}
-					<button
-						type="button"
-						class="menu-product"
-						aria-label={`${product.name} ${formatMoney(product.price)}`}
-						disabled={unavailable || locked}
-						onclick={() =>
-							product.modifierGroups.length || product.variants.length > 1
-								? openModifiers(product.id)
-								: cart.addLine(product, product.variants[0]?.id ?? null)}
-					>
-						<div class="product-photo">
-							{#if image}<img
-									src={image}
-									alt=""
-									loading="lazy"
-									onerror={(event) =>
-										((event.currentTarget as HTMLImageElement).style.visibility = 'hidden')}
-								/>{:else}<div class="text-ink-3 grid h-full place-items-center">
-									<Utensils size={30} strokeWidth={1.4} />
-								</div>{/if}
-						</div>
-						{#if quantity}<span class="product-count" aria-hidden="true">{quantity}</span>{/if}
-						<div class="product-copy">
-							<p class="product-name">{product.name}</p>
-							<p class="product-detail">
-								{unavailable
-									? 'Unavailable'
-									: product.variants.length > 1
-										? `${product.variants.length} sizes available`
-										: product.modifierGroups.length
-											? 'Customize your dish'
-											: (categories.data?.items.find(
-													(category) => category.id === product.categoryId
-												)?.name ?? 'Menu item')}
-							</p>
-							<div class="product-bottom">
-								<span class="product-price">{formatMoney(product.price)}</span><span
-									class="product-add"
-									aria-hidden="true"><Plus size={17} /></span
-								>
-							</div>
-						</div>
-					</button>
-				{/each}
-			</div>
-		{/if}
-		{#if catalog.data && catalog.data.meta.totalPages > 1}<div
-				class="mt-5 flex flex-wrap items-center justify-between gap-3"
-			>
-				<p class="text-ink-3 text-xs">
-					Page {menuPage} of {catalog.data.meta.totalPages} · {catalog.data.meta.total} dishes
-				</p>
-				<div class="flex gap-2">
-					<Button
-						variant="outline"
-						size="sm"
-						disabled={menuPage <= 1}
-						onclick={() => (menuPage -= 1)}>Previous</Button
-					><Button
-						variant="outline"
-						size="sm"
-						disabled={!catalog.data.meta.hasNext}
-						onclick={() => (menuPage += 1)}>Next</Button
-					>
-				</div>
-			</div>{/if}
-
-		{#if $currentUser?.tenantSlug === 'demo'}<p class="text-ink-3 mt-4 text-xs">
-				Demo menu photography is illustrative.
-			</p>{/if}
 	</section>
 
 	<!-- ── the ticket: the cart is a live stub ──────────────────────────── -->
@@ -728,34 +738,38 @@
 		</div>
 		{#if cart.orderType === 'DINE_IN'}
 			<div class="px-4 pt-2.5">
-				<SelectField
-					aria-label="Table"
-					disabled={locked}
-					bind:value={cart.tableId}
-					placeholder="Choose a table"
-					items={(tables.data ?? []).map((table) => ({
-						value: table.id,
-						label: `${table.name} · ${table.capacity} seats`
-					}))}
-				/>
+				<Field label="Table" optional
+					><SelectField
+						aria-label="Table"
+						disabled={locked}
+						bind:value={cart.tableId}
+						placeholder="Choose a table"
+						items={(tables.data ?? []).map((table) => ({
+							value: table.id,
+							label: `${table.name} · ${table.capacity} seats`
+						}))}
+					/></Field
+				>
 			</div>
 		{/if}
 
 		<!-- who the ticket belongs to: the only line that survives on the receipt -->
 		<div class="px-4 pt-2">
-			<SelectField
-				aria-label="Customer"
-				disabled={locked}
-				value={cart.customerId ?? 'walk-in'}
-				onValueChange={(value) => (cart.customerId = value === 'walk-in' ? null : value)}
-				items={[
-					{ value: 'walk-in', label: 'Walk-in customer' },
-					...(customers.data?.items ?? []).map((customer) => ({
-						value: customer.id,
-						label: customer.name
-					}))
-				]}
-			/>
+			<Field label="Customer"
+				><SelectField
+					aria-label="Customer"
+					disabled={locked}
+					value={cart.customerId ?? 'walk-in'}
+					onValueChange={(value) => (cart.customerId = value === 'walk-in' ? null : value)}
+					items={[
+						{ value: 'walk-in', label: 'Walk-in customer' },
+						...(customers.data?.items ?? []).map((customer) => ({
+							value: customer.id,
+							label: customer.name
+						}))
+					]}
+				/></Field
+			>
 		</div>
 
 		<!-- the lines -->
@@ -1054,7 +1068,7 @@
 	sub={`${prepared?.number ?? 'Ticket'} · ${cart.count} items · ${formatMoney(due)}`}
 	width={520}
 >
-	<div class="space-y-4">
+	<div class="form-stack">
 		<div>
 			<p class="lbl">How is it being paid?</p>
 			<div class="grid grid-cols-2 gap-2 sm:grid-cols-3">
@@ -1082,6 +1096,7 @@
 				hint="Used to work out the change; the exact total is what gets recorded."
 			>
 				<Input
+					step="any"
 					class=""
 					type="number"
 					inputmode="decimal"
@@ -1147,13 +1162,18 @@
 	title="Ticket notes"
 	sub="Special instructions for the kitchen and floor"
 >
-	<label class="lbl" for="ticket-notes">Instructions</label><Textarea
-		id="ticket-notes"
-		class=""
-		maxlength={500}
-		bind:value={cart.notes}
-		placeholder="Allergies, preparation requests, or service notes…"
-	></Textarea>
+	<Field
+		label="Instructions"
+		hint="Include allergies, preparation requests or service notes."
+		for="ticket-notes"
+		><Textarea
+			id="ticket-notes"
+			class=""
+			maxlength={500}
+			bind:value={cart.notes}
+			placeholder="Allergies, preparation requests, or service notes…"
+		></Textarea></Field
+	>
 	{#snippet footer()}<Button onclick={() => (notesOpen = false)}>Save notes</Button>{/snippet}
 </Modal>
 <Modal
@@ -1161,25 +1181,27 @@
 	title="Apply a discount"
 	sub="The final amount is checked when the ticket is saved"
 >
-	<div class="space-y-4">
-		<label class="lbl" for="discount-type">Discount type</label><SelectField
-			id="discount-type"
-			class=""
-			bind:value={discountType}
-			items={[
-				{ value: 'PERCENT', label: `Percentage` },
-				{ value: 'FIXED', label: `Fixed amount (PKR)` }
-			]}
-		/><label class="lbl" for="discount-value"
-			>{discountType === 'PERCENT' ? 'Percentage' : 'Amount'}</label
-		><Input
-			id="discount-value"
-			class=""
-			type="number"
-			min="0"
-			max={discountType === 'PERCENT' ? 100 : undefined}
-			bind:value={discountValue}
-		/>
+	<div class="form-stack">
+		<Field label="Discount type" for="discount-type"
+			><SelectField
+				id="discount-type"
+				class=""
+				bind:value={discountType}
+				items={[
+					{ value: 'PERCENT', label: `Percentage` },
+					{ value: 'FIXED', label: `Fixed amount (PKR)` }
+				]}
+			/></Field
+		><Field label={discountType === 'PERCENT' ? 'Percentage' : 'Amount (PKR)'} for="discount-value"
+			><Input
+				id="discount-value"
+				class=""
+				type="number"
+				min="0"
+				max={discountType === 'PERCENT' ? 100 : undefined}
+				bind:value={discountValue}
+			/></Field
+		>
 	</div>
 	{#snippet footer()}<Button variant="ghost" onclick={() => (discountOpen = false)}>Cancel</Button
 		><Button onclick={applyDiscount}>Apply discount</Button>{/snippet}

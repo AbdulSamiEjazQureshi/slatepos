@@ -43,7 +43,7 @@
 	}}
 	disabled={!!rest.disabled}
 >
-	<Select.Trigger class={`w-full ${className ?? ''}`} {...rest}
+	<Select.Trigger data-field-value={value ?? ''} class={`w-full ${className ?? ''}`} {...rest}
 		><Select.Value {placeholder} /></Select.Trigger
 	>
 	<Select.Content

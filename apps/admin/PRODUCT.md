@@ -103,9 +103,10 @@ Constraints that must survive any redesign:
 ## Brand Commitments
 
 - The platform remains ROMS; the current shell displays **SlatePOS**.
-- The implemented, reviewable visual system is **SlatePOS Workspace**, using
-  official shadcn-svelte Nova neutral components, self-hosted Inter, neutral
-  primary actions, compact navigation, real dropdowns and sheets, and photo menus.
+- The implemented, reviewable visual system is **SlatePOS Evergreen**, using
+  existing shadcn-svelte Nova components, self-hosted Archivo headings and Inter
+  controls, an evergreen navigation rail, teal actions, real dropdowns and sheets,
+  and photo menus.
 - User acceptance is pending. The user rejected Counter and Service and explicitly
   requested shadcn-svelte; neither discarded world governs new surfaces.
 - Light and dark share semantic primitive roles. Legacy tenant branding defaults

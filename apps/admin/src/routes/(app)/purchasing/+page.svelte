@@ -17,6 +17,7 @@
 	import Skeleton from '#lib/ui/skeleton.svelte';
 	import Modal from '#lib/ui/modal.svelte';
 	import Field from '#lib/ui/field.svelte';
+	import FormSection from '#lib/ui/form-section.svelte';
 	import Figure from '#lib/ui/figure.svelte';
 	import Truck from '@lucide/svelte/icons/truck';
 	import Plus from '@lucide/svelte/icons/plus';
@@ -536,7 +537,7 @@
 			<Empty
 				icon={ScrollText}
 				title="Nothing on the ledger"
-				body="Raise a purchase order against this supplier and the entries start here."
+				body="New purchase order against this supplier and the entries start here."
 			/>
 		{:else}
 			<ul class="divide-line divide-y">
@@ -588,7 +589,7 @@
 	sub={ledgerFor?.name}
 	width={440}
 >
-	<div class="grid gap-4">
+	<div class="form-stack">
 		<Field label="Amount" for="pay-amt" required>
 			<div class="field-shell">
 				<Input
@@ -641,7 +642,7 @@
 	sub="Terms and contact details"
 	width={560}
 >
-	<div class="grid gap-4 sm:grid-cols-2">
+	<FormSection title="Supplier details" description="Business name and primary contact.">
 		<Field label="Name" for="s-name" required class="sm:col-span-2">
 			<Input id="s-name" class="" bind:value={supplierForm.name} placeholder="Metro Cash & Carry" />
 		</Field>
@@ -649,15 +650,30 @@
 			<Input id="s-contact" class="" bind:value={supplierForm.contactName} placeholder="Imran" />
 		</Field>
 		<Field label="Phone" for="s-phone">
-			<Input id="s-phone" class="" bind:value={supplierForm.phone} placeholder="+92 300 0000000" />
+			<Input
+				type="tel"
+				autocomplete="tel"
+				id="s-phone"
+				class=""
+				bind:value={supplierForm.phone}
+				placeholder="+92 300 0000000"
+			/>
 		</Field>
 		<Field label="Email" for="s-email" class="sm:col-span-2">
-			<Input id="s-email" type="email" class="" bind:value={supplierForm.email} />
+			<Input
+				autocomplete="email"
+				id="s-email"
+				type="email"
+				class=""
+				bind:value={supplierForm.email}
+			/>
 		</Field>
 		<Field label="Address" for="s-address" class="sm:col-span-2">
 			<Textarea id="s-address" class=" min-h-[60px] resize-y" bind:value={supplierForm.address}
 			></Textarea>
 		</Field>
+	</FormSection>
+	<FormSection title="Payment agreement" description="When this supplier expects payment.">
 		<Field
 			label="Payment terms"
 			hint="Days before an invoice is due."
@@ -676,7 +692,7 @@
 				<span class="text-ink-3 pr-3 text-[12px]">days</span>
 			</div>
 		</Field>
-	</div>
+	</FormSection>
 
 	{#snippet footer()}
 		<Button variant="ghost" onclick={() => (supplierOpen = false)}>Cancel</Button>
@@ -693,11 +709,11 @@
 	onOpenChange={(value) => {
 		if (!value) poOpen = false;
 	}}
-	title="Raise a purchase order"
-	sub="It starts as a draft — send it when you are happy"
+	title="New purchase order"
+	sub="Create a draft order, then send it to the supplier."
 	width={680}
 >
-	<div class="grid gap-4 sm:grid-cols-2">
+	<FormSection title="Order details" description="Choose a supplier and expected delivery date.">
 		<Field label="Supplier" for="po-sup">
 			<SelectField
 				id="po-sup"
@@ -710,10 +726,14 @@
 				]}
 			/>
 		</Field>
-		<Field label="Expected" hint="Optional — when you expect it to land." for="po-exp">
+		<Field
+			label="Expected delivery date"
+			hint="Optional — when you expect it to land."
+			for="po-exp"
+		>
 			<Input id="po-exp" type="date" class="" bind:value={poExpected} />
 		</Field>
-	</div>
+	</FormSection>
 
 	<div class="perf-rule mt-4"></div>
 
@@ -721,7 +741,13 @@
 		<label class="lbl" for="po-find">Lines</label>
 		<div class="field-shell">
 			<Search />
-			<Input id="po-find" class="" bind:value={poQuery} placeholder="Search products to order…" />
+			<Input
+				aria-label="Search"
+				id="po-find"
+				class=""
+				bind:value={poQuery}
+				placeholder="Search products to order…"
+			/>
 		</div>
 		{#if poQuery.trim()}
 			<ul class="border-line mt-2 max-h-[150px] overflow-y-auto rounded-sm border">
@@ -760,6 +786,7 @@
 							<Minus size={13} />
 						</button>
 						<Input
+							aria-label="Quantity for {line.name}"
 							type="number"
 							min="1"
 							class=" u-num h-7 w-[60px] px-2 text-center text-sm"
@@ -776,6 +803,7 @@
 					</div>
 					<div class="field-shell w-[110px]">
 						<Input
+							aria-label="Unit cost for {line.name}"
 							class=" u-num h-7 px-2 text-right text-sm"
 							bind:value={line.unitCost}
 							inputmode="decimal"
@@ -853,6 +881,7 @@
 					</div>
 					<div class="field-shell w-[92px] shrink-0">
 						<Input
+							aria-label="Received quantity"
 							type="number"
 							min="0"
 							max={outstanding}

@@ -23,6 +23,7 @@
 	import Skeleton from '#lib/ui/skeleton.svelte';
 	import Modal from '#lib/ui/modal.svelte';
 	import Field from '#lib/ui/field.svelte';
+	import FormSection from '#lib/ui/form-section.svelte';
 	import Figure from '#lib/ui/figure.svelte';
 	import IdCard from '@lucide/svelte/icons/id-card';
 	import Plus from '@lucide/svelte/icons/plus';
@@ -360,7 +361,7 @@
 		</Button>
 		<Button size="sm" onclick={openCreate}>
 			<Plus size={14} />
-			Add someone
+			Add employee
 		</Button>
 	{/snippet}
 </PageHead>
@@ -403,7 +404,12 @@
 			{#snippet actions()}
 				<div class="field-shell h-8 min-w-[190px]">
 					<Search />
-					<Input class=" text-sm" bind:value={query} placeholder="Find someone…" />
+					<Input
+						aria-label="Search"
+						class=" text-sm"
+						bind:value={query}
+						placeholder="Find someone…"
+					/>
 				</div>
 			{/snippet}
 		</PlateHead>
@@ -417,7 +423,7 @@
 				body="Add your staff, set their terms, and their shifts, punches and advances all land against their name."
 			>
 				{#snippet action()}
-					<Button size="sm" onclick={openCreate}>Add someone</Button>
+					<Button size="sm" onclick={openCreate}>Add employee</Button>
 				{/snippet}
 			</Empty>
 		{:else if visible.length === 0}
@@ -668,7 +674,7 @@
 		<div class="mt-4 flex flex-wrap gap-1.5">
 			<Button size="sm" variant="outline" onclick={openEdit}>
 				<Pencil size={14} />
-				Edit terms
+				Edit employee
 			</Button>
 			<Button size="sm" variant="outline" onclick={openLeave}>
 				<Plane size={14} />
@@ -698,18 +704,31 @@
 	onOpenChange={(value) => {
 		if (!value) formOpen = false;
 	}}
-	title={editingId ? 'Edit terms' : 'Add someone'}
+	title={editingId ? 'Edit employee' : 'Add employee'}
 	sub={editingId
 		? 'Pay changes take effect from the next payroll run'
 		: 'Only a name is required up front'}
 	width={620}
 >
-	<div class="grid gap-4 sm:grid-cols-2">
+	<FormSection title="Employee details" description="Contact information and role in your team.">
 		<Field label="Full name" for="p-name" required class="sm:col-span-2">
-			<Input id="p-name" class="" bind:value={form.fullName} placeholder="Bilal Ahmed" />
+			<Input
+				autocomplete="name"
+				id="p-name"
+				class=""
+				bind:value={form.fullName}
+				placeholder="Bilal Ahmed"
+			/>
 		</Field>
 		<Field label="Phone" for="p-phone">
-			<Input id="p-phone" class="" bind:value={form.phone} placeholder="+92 300 0000000" />
+			<Input
+				type="tel"
+				autocomplete="tel"
+				id="p-phone"
+				class=""
+				bind:value={form.phone}
+				placeholder="+92 300 0000000"
+			/>
 		</Field>
 		<Field label="Position" for="p-pos">
 			<Input id="p-pos" class="" bind:value={form.position} placeholder="Head chef" />
@@ -727,10 +746,12 @@
 				]}
 			/>
 		</Field>
-		<Field label="Hired" for="p-hire">
+		<Field label="Hire date" for="p-hire">
 			<Input id="p-hire" type="date" class="" bind:value={form.hireDate} />
 		</Field>
-		<Field label="Paid" for="p-type">
+	</FormSection>
+	<FormSection title="Compensation" description="Pay frequency, base salary and commission.">
+		<Field label="Pay frequency" for="p-type">
 			<div class="border-line flex rounded-sm border p-0.5">
 				{#each ['MONTHLY', 'DAILY', 'HOURLY'] as option (option)}
 					<button
@@ -744,7 +765,7 @@
 				{/each}
 			</div>
 		</Field>
-		<Field label="Amount" for="p-amt">
+		<Field label="Salary amount" for="p-amt">
 			<div class="field-shell">
 				<Input
 					id="p-amt"
@@ -758,7 +779,7 @@
 		</Field>
 		<Field
 			label="Commission"
-			hint="Enter a percentage — stored as a fraction."
+			hint="Percentage of sales paid as commission."
 			for="p-comm"
 			class="sm:col-span-2"
 		>
@@ -775,12 +796,12 @@
 				<span class="text-ink-3 pr-3 text-[12px]">%</span>
 			</div>
 		</Field>
-	</div>
+	</FormSection>
 
 	{#snippet footer()}
 		<Button variant="ghost" onclick={() => (formOpen = false)}>Cancel</Button>
 		<Button loading={saving} disabled={!form.fullName.trim()} onclick={save}>
-			{editingId ? 'Save terms' : 'Add to the team'}
+			{editingId ? 'Save changes' : 'Add employee'}
 		</Button>
 	{/snippet}
 </Modal>
@@ -796,8 +817,8 @@
 	sub="It posts to their ledger straight away"
 	width={480}
 >
-	<div class="grid gap-4">
-		<Field label="Who" for="a-who">
+	<div class="form-stack">
+		<Field label="Employee" for="a-who">
 			<SelectField
 				id="a-who"
 				class=""
@@ -819,7 +840,7 @@
 				<span class="text-ink-3 pr-3 text-[12px]">PKR</span>
 			</div>
 		</Field>
-		<Field label="Why" for="a-why">
+		<Field label="Reason" for="a-why">
 			<Input
 				id="a-why"
 				class=""
@@ -852,8 +873,8 @@
 	sub={opened?.fullName}
 	width={480}
 >
-	<div class="grid gap-4">
-		<Field label="Who" for="l-who">
+	<div class="form-stack">
+		<Field label="Employee" for="l-who">
 			<SelectField
 				id="l-who"
 				class=""
@@ -863,7 +884,7 @@
 				]}
 			/>
 		</Field>
-		<div class="grid gap-4 sm:grid-cols-2">
+		<div class="form-grid">
 			<Field label="From" for="l-from">
 				<Input id="l-from" type="date" class="" bind:value={leave.fromDate} />
 			</Field>
@@ -909,8 +930,8 @@
 	sub="Attendance for {formatDate(today)} — for when nobody tapped a device"
 	width={480}
 >
-	<div class="grid gap-4">
-		<Field label="Who" for="pu-who" required>
+	<div class="form-stack">
+		<Field label="Employee" for="pu-who" required>
 			<SelectField
 				id="pu-who"
 				class=""
@@ -921,7 +942,7 @@
 			/>
 		</Field>
 
-		<Field label="How the day went" for="pu-status">
+		<Field label="Attendance status" for="pu-status">
 			<div class="flex flex-wrap gap-1.5">
 				{#each ['PRESENT', 'LATE', 'ABSENT', 'LEAVE', 'HOLIDAY'] as option (option)}
 					<button

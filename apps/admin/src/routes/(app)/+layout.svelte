@@ -5,6 +5,8 @@
 	import { startRealtime, stopRealtime } from '#lib/realtime';
 	import { closePalette, togglePalette } from '#lib/ui/palette-store';
 	import Rail from '#lib/ui/rail.svelte';
+	import SectionNav from '#lib/ui/section-nav.svelte';
+	import { page } from '$app/state';
 	import Topbar from '#lib/ui/topbar.svelte';
 	import Palette from '#lib/ui/palette.svelte';
 
@@ -51,13 +53,21 @@
 </script>
 
 {#if ready}
-	<div class="bg-ground flex h-dvh overflow-hidden">
-		<Rail bind:mobileOpen={mobileNav} />
-
-		<div class="flex min-w-0 flex-1 flex-col">
-			<Topbar onMenu={() => (mobileNav = true)} />
-			<main class="min-h-0 flex-1 overflow-y-auto">
-				<div class="mx-auto w-full max-w-[1600px] px-4 py-5 sm:px-6 sm:py-6">
+	<div
+		class="workspace-shell bg-ground flex h-dvh flex-col overflow-hidden"
+		class:cashier-workspace={page.url.pathname === '/pos'}
+	>
+		<a href="#workspace-content" class="skip-link">Skip to content</a>
+		<Topbar onMenu={() => (mobileNav = true)} />
+		<SectionNav />
+		<div class="workspace-body flex min-h-0 flex-1">
+			<Rail bind:mobileOpen={mobileNav} />
+			<main
+				id="workspace-content"
+				tabindex="-1"
+				class="workspace-main min-h-0 min-w-0 flex-1 overflow-y-auto"
+			>
+				<div class="workspace-content mx-auto w-full max-w-[1600px] px-4 py-6 sm:px-8 sm:py-8">
 					{@render children()}
 				</div>
 			</main>

@@ -38,6 +38,7 @@
 	{size}
 	disabled={disabled || loading}
 	aria-busy={loading || undefined}
+	data-form-action={variant === 'primary' ? 'primary' : undefined}
 	class={cn(size === 'lg' && 'h-11 px-5', className)}
 	{...rest}
 >

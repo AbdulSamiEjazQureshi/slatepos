@@ -19,6 +19,7 @@
 	import Skeleton from '#lib/ui/skeleton.svelte';
 	import Modal from '#lib/ui/modal.svelte';
 	import Field from '#lib/ui/field.svelte';
+	import FormSection from '#lib/ui/form-section.svelte';
 	import Figure from '#lib/ui/figure.svelte';
 	import Boxes from '@lucide/svelte/icons/boxes';
 	import Search from '@lucide/svelte/icons/search';
@@ -319,7 +320,7 @@
 		<div class="border-line border-b px-4 py-2.5">
 			<div class="field-shell w-full max-w-[280px]">
 				<Search />
-				<Input class="" bind:value={query} placeholder="Find a product…" />
+				<Input aria-label="Search" class="" bind:value={query} placeholder="Find a product…" />
 			</div>
 		</div>
 
@@ -477,15 +478,15 @@
 	sub={adjustFor ? `${adjustFor.name} · ${adjustFor.quantity} on hand` : ''}
 	width={460}
 >
-	<div class="space-y-4">
-		<Field label="How many" for="a-qty">
+	<div class="form-stack">
+		<Field label="Quantity" for="a-qty">
 			<div class="field-shell">
 				<Input id="a-qty" type="number" min="1" class=" u-num" bind:value={adjustQty} />
 				<span class="text-ink-3 pr-3 text-[12px]">units</span>
 			</div>
 		</Field>
 
-		<Field label="Why" hint="This is what the ledger will say happened.">
+		<Field label="Adjustment reason" hint="This is what the ledger will say happened.">
 			<div class="flex flex-wrap gap-1.5">
 				{#each ['ADJUSTMENT', 'PURCHASE', 'WASTAGE', 'RETURN', 'PRODUCTION'] as option (option)}
 					<button
@@ -534,8 +535,8 @@
 	sub="One line per product, sent in a single movement"
 	width={560}
 >
-	<div class="grid gap-4 sm:grid-cols-2">
-		<Field label="From" for="t-from">
+	<FormSection title="Transfer route" description="Select the source and destination branches.">
+		<Field label="Source branch" for="t-from">
 			<SelectField
 				id="t-from"
 				class=""
@@ -547,7 +548,7 @@
 				]}
 			/>
 		</Field>
-		<Field label="To" for="t-to">
+		<Field label="Destination branch" for="t-to">
 			<SelectField
 				id="t-to"
 				class=""
@@ -559,7 +560,7 @@
 				]}
 			/>
 		</Field>
-	</div>
+	</FormSection>
 
 	{#if transferFrom === transferTo}
 		<p class="text-amber mt-3 text-[12px]">
@@ -618,6 +619,7 @@
 								<Minus size={13} />
 							</button>
 							<Input
+								aria-label="Quantity for {line.name}"
 								type="number"
 								min="1"
 								class=" u-num h-7 w-[64px] px-2 text-center text-sm"

@@ -1,13 +1,11 @@
 <script lang="ts">
 	import { createQuery } from '@tanstack/svelte-query';
 	import { goto } from '$app/navigation';
-	import { page } from '$app/state';
 	import { api } from '#lib/api';
 	import { authenticated, branchId, currentUser, session } from '#lib/session';
 	import { branchSwitchLocked } from '#lib/shell-store';
 	import { theme, toggleTheme } from '#lib/theme';
 	import { openPalette } from '#lib/ui/palette-store';
-	import { currentNavItem } from '#lib/nav-filter';
 	import * as Dropdown from '#lib/components/ui/dropdown-menu/index.js';
 	import { Button } from '#lib/components/ui/button/index.js';
 	import SelectField from './select-field.svelte';
@@ -31,12 +29,9 @@
 			label: branches.data?.items.find((row) => row.id === id)?.name ?? 'Loading branch…'
 		}))
 	);
-	const active = $derived(currentNavItem(page.url.pathname));
 </script>
 
-<header
-	class="border-border bg-background flex h-14 shrink-0 items-center gap-3 border-b px-4 sm:px-6"
->
+<header class="workspace-topbar flex h-16 shrink-0 items-center gap-3 px-4 sm:px-8">
 	<Button
 		variant="ghost"
 		size="icon"
@@ -44,18 +39,21 @@
 		aria-label="Open navigation"
 		onclick={onMenu}><Menu /></Button
 	>
-	<span class="text-foreground text-sm font-medium">{active?.label ?? 'Overview'}</span>
+	<a href="/dashboard" class="workspace-identity" aria-label="SlatePOS home"
+		><span class="workspace-monogram">s</span><span>SlatePOS</span></a
+	>
+	<span class="workspace-tenant hidden md:block">{$currentUser?.tenantSlug ?? 'Restaurant'}</span>
 	<div class="flex-1"></div>
 	<Button
 		variant="ghost"
 		aria-label="Search or jump to a page"
-		class="text-muted-foreground gap-3"
+		class="workspace-search text-muted-foreground gap-3"
 		onclick={openPalette}
 		><Search /><span class="hidden sm:inline">Search</span><kbd
 			class="hidden rounded border px-1.5 text-[11px] md:inline">⌘ K</kbd
 		></Button
 	>
-	<div class="hidden w-36 sm:block">
+	<div class="branch-picker w-36">
 		<SelectField
 			aria-label="Active branch"
 			class="bg-muted/50 border-0"

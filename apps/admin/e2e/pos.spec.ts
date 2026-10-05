@@ -98,6 +98,7 @@ test('catalog edit sheets open from row menus and restore focus after Escape', a
 	await page.goto('/login');
 	await page.getByRole('button', { name: 'Sign in', exact: true }).click();
 	await expect(page).toHaveURL(/\/dashboard/);
+	await page.getByRole('link', { name: 'Stock', exact: true }).click();
 	await page.getByRole('link', { name: 'Catalog', exact: true }).click();
 	const actions = page.getByRole('button', { name: 'Actions for Beef Steak', exact: true });
 	await actions.click();

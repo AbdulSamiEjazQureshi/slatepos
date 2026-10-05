@@ -17,6 +17,7 @@
 	import Skeleton from '#lib/ui/skeleton.svelte';
 	import Modal from '#lib/ui/modal.svelte';
 	import Field from '#lib/ui/field.svelte';
+	import FormSection from '#lib/ui/form-section.svelte';
 	import Figure from '#lib/ui/figure.svelte';
 	import Users from '@lucide/svelte/icons/users';
 	import Plus from '@lucide/svelte/icons/plus';
@@ -174,7 +175,12 @@
 		{#snippet actions()}
 			<div class="field-shell h-8 min-w-[200px]">
 				<Search />
-				<Input class=" text-sm" bind:value={query} placeholder="Find a customer…" />
+				<Input
+					aria-label="Search"
+					class=" text-sm"
+					bind:value={query}
+					placeholder="Find a customer…"
+				/>
 			</div>
 		{/snippet}
 	</PlateHead>
@@ -383,16 +389,25 @@
 	sub={editingId ? 'Phone, email and group can all be cleared' : 'A name is all that is required'}
 	width={560}
 >
-	<div class="grid gap-4 sm:grid-cols-2">
+	<FormSection title="Contact details" description="Identify the customer and how to reach them.">
 		<Field label="Name" for="c-name" required class="sm:col-span-2">
 			<Input id="c-name" class="" bind:value={form.name} placeholder="Ayesha Malik" />
 		</Field>
 		<Field label="Phone" hint="Unique per customer — used to find them at the till." for="c-phone">
-			<Input id="c-phone" class="" bind:value={form.phone} placeholder="+92 300 0000000" />
+			<Input
+				type="tel"
+				autocomplete="tel"
+				id="c-phone"
+				class=""
+				bind:value={form.phone}
+				placeholder="+92 300 0000000"
+			/>
 		</Field>
 		<Field label="Email" for="c-email">
-			<Input id="c-email" type="email" class="" bind:value={form.email} />
+			<Input autocomplete="email" id="c-email" type="email" class="" bind:value={form.email} />
 		</Field>
+	</FormSection>
+	<FormSection title="Customer profile" description="Group membership and notes for your team.">
 		<Field
 			label="Group"
 			hint="Free text — becomes a filter chip above."
@@ -409,7 +424,7 @@
 				placeholder="Allergic to nuts. Prefers the corner table."
 			></Textarea>
 		</Field>
-	</div>
+	</FormSection>
 
 	{#snippet footer()}
 		<Button variant="ghost" onclick={() => (formOpen = false)}>Cancel</Button>

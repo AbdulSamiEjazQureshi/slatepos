@@ -133,7 +133,12 @@
 		{#snippet actions()}
 			<div class="field-shell w-[200px] max-w-[46vw]">
 				<Search />
-				<Input class="" bind:value={query} placeholder="Number or dish…" />
+				<Input
+					aria-label="Search orders"
+					class=""
+					bind:value={query}
+					placeholder="Number or dish…"
+				/>
 			</div>
 		{/snippet}
 	</PlateHead>
